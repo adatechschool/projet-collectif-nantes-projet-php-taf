@@ -16,6 +16,7 @@ Au début d'une nouvelle fonctionnalité:
 2. `git pull origin`: pour t'assurer que tu es bien à jour sur dev
 3. `git branch nom-de-fonctionnalite`: pour travailler sur une nouvelle fonctionnalité
 
+
 Pendant la réalisation de la fonctionnalité:
 
 4. `git add .`: pour ajouter les fichiers modifiés
@@ -40,3 +41,4 @@ Une fois la fonctionnalité terminée:
     On fait la résolution de conflits, et:
 
     - `git push origin dev`
+
