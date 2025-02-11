@@ -8,7 +8,9 @@ $volunteersList = $statement->fetchAll();
     echo "Erreur de base de données : " . $e->getMessage();
     exit;
 }
-
+// echo "<pre>";
+// var_dump($volunteersList);
+// echo "</pre>";
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -74,7 +76,7 @@ error_reporting(E_ALL);
                 echo'<td class="py-3 px-4">' . $volunteersList[$index]["email"] .  '</td>';
                 echo'<td class="py-3 px-4"> ' . $volunteersList[$index]["role"] . '</td>';
                 echo'<td class="py-3 px-4 flex space-x-2">';
-                   echo' <a href="#"
+                   echo' <a href="volunteer_edit.php?id=' . $volunteersList[$index]["id"] . '"
                     class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
                     ✏️ Modifier
                 </a>';
