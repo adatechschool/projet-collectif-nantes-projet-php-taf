@@ -68,26 +68,25 @@ error_reporting(E_ALL);
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
-                    <?php
-                    for($index = 0; $index < count($volunteersList); $index++) {
-                echo'<tr class="hover:bg-gray-100 transition duration-200">';
+                    <?php for($index = 0; $index < count($volunteersList); $index++): ?>
+                <tr class="hover:bg-gray-100 transition duration-200">
                         
-                echo'<td class="py-3 px-4">' . $volunteersList[$index]["nom"] . '</td>';
-                echo'<td class="py-3 px-4">' . $volunteersList[$index]["email"] .  '</td>';
-                echo'<td class="py-3 px-4"> ' . $volunteersList[$index]["role"] . '</td>';
-                echo'<td class="py-3 px-4 flex space-x-2">';
-                   echo' <a href="volunteer_edit.php?id=' . $volunteersList[$index]["id"] . '"
+                <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["nom"]) ?></td>
+                <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["email"]) ?></td>
+                <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["role"]) ?></td>
+                <td class="py-3 px-4 flex space-x-2">
+                   <a href="volunteer_edit.php?id=<?= $volunteersList[$index]["id"] ?>"
                     class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
                     ✏️ Modifier
-                </a>';
-                echo'<a href="volunteer_delete.php?id=' . $volunteersList[$index]["id"] . '"
+                </a>
+                <a href="volunteer_delete.php?id=<?= $volunteersList[$index]["id"] ?>"
                 class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
                 🗑️ Supprimer
-            </a>';
-        echo'</td>  ';
-    echo'</tr>';
-}
-                        ?>
+            </a>
+        </td>
+    </tr>
+
+                        <?php endfor; ?>
                 </tbody>
             </table>
         </div>
