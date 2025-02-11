@@ -1,3 +1,25 @@
+<?php
+require 'config.php';
+
+try {
+$statement = $pdo->query("SELECT * FROM benevoles");
+$volunteersList = $statement->fetchAll();
+
+echo "<pre>";
+var_dump($volunteersList);
+echo "</pre>";
+
+}catch(PDOException $e) {
+    echo "Erreur de base de données : " . $e->getMessage();
+    exit;
+}
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -49,21 +71,26 @@
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
-                <tr class="hover:bg-gray-100 transition duration-200">
-                    <td class="py-3 px-4">Nom du bénévole</td>
-                    <td class="py-3 px-4">email@example.com</td>
-                    <td class="py-3 px-4">Admin</td>
-                    <td class="py-3 px-4 flex space-x-2">
-                        <a href="#"
-                           class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
-                            ✏️ Modifier
-                        </a>
-                        <a href="#"
-                           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
-                            🗑️ Supprimer
-                        </a>
-                    </td>
-                </tr>
+                    <?php
+                    for($index = 0; $index < count($volunteersList); $index++) {
+                echo'<tr class="hover:bg-gray-100 transition duration-200">';
+                        
+                echo'<td class="py-3 px-4">' . $volunteersList[$index]["nom"] . '</td>';
+                echo'<td class="py-3 px-4">' . $volunteersList[$index]["email"] .  '</td>';
+                echo'<td class="py-3 px-4"> ' . $volunteersList[$index]["role"] . '</td>';
+                echo'<td class="py-3 px-4 flex space-x-2">';
+                   echo' <a href="#"
+                    class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                    ✏️ Modifier
+                </a>';
+                echo'<a href="#"
+                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
+                🗑️ Supprimer
+            </a>';
+        echo'</td>  ';
+    echo'</tr>';
+}
+                        ?>
                 </tbody>
             </table>
         </div>
