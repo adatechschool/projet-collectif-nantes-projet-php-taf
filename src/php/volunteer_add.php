@@ -3,12 +3,17 @@ require "config.php";
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
+// on vérifie si la requête est une méthode POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    // on récupère les valeurs de la requête sous forme de super globales
     $name = $_POST['nom'];
     $email = $_POST['email'];
     $password = $_POST['mot_de_passe'];
     $role = $_POST['role'];
 
+    // gestion des erreurs
     try {
         $statement = $pdo->prepare("INSERT INTO benevoles(nom, email, mot_de_passe, role) VALUES (?, ?, ?, ?)");
         if (!$statement->execute([$name, $email, $password, $role])) {
