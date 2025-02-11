@@ -1,3 +1,32 @@
+<?php
+require "config.php";
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $name = $_POST['nom'];
+    $email = $_POST['email'];
+    $password = $_POST['mot_de_passe'];
+    $role = $_POST['role'];
+
+    try {
+        $statement = $pdo->prepare("INSERT INTO benevoles(nom, email, mot_de_passe, role) VALUES (?, ?, ?, ?)");
+        if (!$statement->execute([$name, $email, $password, $role])) {
+            die("Erreur lors de l'insertion dans la base de données.");
+        }
+
+        header("Location: volunteer_list.php");
+        exit;
+    } catch (PDOException $e) {
+        echo "Erreur de base de données : " . $e->getMessage();
+        exit;
+    }
+}
+
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
