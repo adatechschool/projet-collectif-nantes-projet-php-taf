@@ -4,12 +4,7 @@ require 'config.php';
 try {
 $statement = $pdo->query("SELECT * FROM benevoles");
 $volunteersList = $statement->fetchAll();
-
-echo "<pre>";
-var_dump($volunteersList);
-echo "</pre>";
-
-}catch(PDOException $e) {
+} catch(PDOException $e) {
     echo "Erreur de base de données : " . $e->getMessage();
     exit;
 }
@@ -41,7 +36,7 @@ error_reporting(E_ALL);
             <li><a href="volunteer_list.php" class="flex items-center py-2 px-3 hover:bg-blue-800 rounded-lg"><i
                             class="fa-solid fa-list mr-3"></i> Liste des bénévoles</a></li>
             <li>
-                <a href="user_add.php" class="flex items-center py-2 px-3 hover:bg-blue-800 rounded-lg">
+                <a href="volunteer_add.php" class="flex items-center py-2 px-3 hover:bg-blue-800 rounded-lg">
                     <i class="fas fa-user-plus mr-3"></i> Ajouter un bénévole
                 </a>
             </li>
@@ -83,7 +78,7 @@ error_reporting(E_ALL);
                     class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
                     ✏️ Modifier
                 </a>';
-                echo'<a href="#"
+                echo'<a href="volunteer_delete.php?id=' . $volunteersList[$index]["id"] . '"
                 class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
                 🗑️ Supprimer
             </a>';
