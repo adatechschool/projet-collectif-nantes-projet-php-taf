@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <!-- Formulaire d'ajout -->
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto">
-            <form action="user_add.php" method="POST">
+            <form action="volunteer_add.php" method="POST">
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium">Nom</label>
                     <input type="text" name="nom"
