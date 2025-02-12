@@ -4,7 +4,7 @@ require 'config.php';
 
 try {
     // récupération de la liste des bénévoles
-    $statement = $pdo->query("SELECT * FROM benevoles"); // écriture de la requête
+    $statement = $pdo->query("SELECT benevoles.id, benevoles.nom, benevoles.email, benevoles.role, ROUND(COALESCE(SUM(dechets_collectes.quantite_kg), 0), 1) AS quantite_totale_dechets_kg FROM benevoles LEFT JOIN collectes ON benevoles.id = collectes.id_benevole LEFT JOIN dechets_collectes ON collectes.id = dechets_collectes.id_collecte GROUP BY benevoles.id, benevoles.nom, benevoles.email, benevoles.role"); // écriture de la requête
     $volunteersList = $statement->fetchAll(); // exécution de la requête
 } catch(PDOException $e) {
     echo "Erreur de base de données : " . $e->getMessage();
@@ -51,6 +51,7 @@ error_reporting(E_ALL);
                         <th class="py-3 px-4 text-left">Nom</th>
                         <th class="py-3 px-4 text-left">Email</th>
                         <th class="py-3 px-4 text-left">Rôle</th>
+                        <th class="py-3 px-4 text-left">Quantité totale des déchets collectés</th>
                         <th class="py-3 px-4 text-left">Actions</th>
                     </tr>
                 </thead>
@@ -64,6 +65,7 @@ error_reporting(E_ALL);
                         <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["email"]) ?></td>
                         <!-- htmlspecialchars permet de sécuriser les données qui sont affichées dans le tableau. Il convertit les caractères spéciaux HTML en entités HTML -->
                         <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["role"]) ?></td>
+                        <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["quantite_totale_dechets_kg"]) ?></td>
                         <td class="py-3 px-4 flex space-x-2">
                            <a href="volunteer_edit.php?id=<?= $volunteersList[$index]["id"] ?>"
                             class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
