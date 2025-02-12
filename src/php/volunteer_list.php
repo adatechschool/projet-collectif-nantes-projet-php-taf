@@ -51,7 +51,7 @@ error_reporting(E_ALL);
                         <th class="py-3 px-4 text-left">Nom</th>
                         <th class="py-3 px-4 text-left">Email</th>
                         <th class="py-3 px-4 text-left">Rôle</th>
-                        <th class="py-3 px-4 text-left">Quantité totale des déchets collectés</th>
+                        <th class="py-3 px-4 text-left">Quantité totale des déchets collectés (kg)</th>
                         <th class="py-3 px-4 text-left">Actions</th>
                     </tr>
                 </thead>
