@@ -29,10 +29,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $date = $_POST["date"];
     $lieu = $_POST["lieu"];
     $benevole_id = $_POST["benevole"]; // Récupérer l'ID du bénévole sélectionné
+    $type_de_dechet = $_POST["type_dechet"];
+    $quantite_dechet = $_POST["quantite_kg"];
+    $collecte_id = $_POST["collecte"];
 
     $stmt = $pdo->prepare("UPDATE collectes SET date_collecte = ?, lieu = ?, id_benevole = ? WHERE id = ?");
     $stmt->execute([$date, $lieu, $benevole_id, $id]);
 
+    $stmt2 = $pdo->prepare("INSERT INTO dechets_collectes (id_collecte, type_dechet, quantite_kg) VALUES (?,?,?)");
+    $stmt2->execute([$id,$type_de_dechet,$quantite_dechet]);
     header("Location: collection_list.php");
     exit;
 }
@@ -97,6 +102,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+                       
+<div>
+    <label class="block text-sm font-medium text-gray-700">Type de déchet :</label>
+    <select name="type_dechet" required class="w-full p-2 border border-gray-300 rounded-lg">
+        <option value="" disabled selected>Sélectionnez le type</option>
+        <option value="plastique">Plastique</option>
+        <option value="verre">Verre</option>
+        <option value="papier">Papier</option>
+        <option value="metal">Métal</option>
+        <option value="organique">Organique</option>
+    </select>
+</div>
+<div>
+    <label class="block text-sm font-medium text-gray-700">Quantité (kg) :</label>
+    <input type="number" name="quantite_kg" step="0.1" min="0" required 
+           class="w-full p-2 border border-gray-300 rounded-lg"
+           value="<?= htmlspecialchars($collecte['quantite_kg'] ?? '') ?>">
+</div>
+
+
+
+                    
                 </div>
                 <div class="flex justify-end space-x-4">
                     <a href="collection_list.php" class="bg-gray-500 text-white px-4 py-2 rounded-lg">Annuler</a>
