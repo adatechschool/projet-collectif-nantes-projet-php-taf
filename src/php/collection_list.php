@@ -4,6 +4,11 @@ require 'config.php';
 try {
     $stmt = $pdo->query("SELECT collectes.id, collectes.date_collecte, IFNULL(benevoles.nom, 'Aucun bénévole') AS nom, collectes.lieu, GROUP_CONCAT(CONCAT(dechets_collectes.type_dechet, ' (', dechets_collectes.quantite_kg, 'kg)') SEPARATOR ', ') AS liste_types_dechet FROM dechets_collectes JOIN collectes ON dechets_collectes.id_collecte = collectes.id LEFT JOIN benevoles ON collectes.id_benevole = benevoles.id GROUP BY collectes.id ORDER BY collectes.date_collecte DESC");
     $collectes = $stmt->fetchAll();
+    
+    $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
+    $query->execute();
+    $admin = $query->fetch(PDO::FETCH_ASSOC);
+    $adminNom = $admin ? htmlspecialchars($admin['nom']) : 'Aucun administrateur trouvé';
 
     $stmt2 = $pdo->query("
         SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1)
@@ -13,11 +18,6 @@ try {
     ");
     
     $quantite = $stmt2->fetch(PDO::FETCH_ASSOC);
-    
-    $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
-    $query->execute();
-    $admin = $query->fetch(PDO::FETCH_ASSOC);
-    $adminNom = $admin ? htmlspecialchars($admin['nom']) : 'Aucun administrateur trouvé';
 } catch (PDOException $e) {
     echo "Erreur de base de données : " . $e->getMessage();
     exit;
