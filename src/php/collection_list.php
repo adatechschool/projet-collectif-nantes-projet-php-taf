@@ -13,6 +13,15 @@ try {
                 ORDER BY c.date_collecte DESC");
     $collectes = $stmt->fetchAll();
 
+    $stmt2 = $pdo->query("
+        SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1)
+        AS quantite_total_des_dechets_collectes
+        FROM collectes
+        LEFT JOIN dechets_collectes ON collectes.id=dechets_collectes.id_collecte
+    ");
+    
+    $quantite = $stmt2->fetch(PDO::FETCH_ASSOC);
+    
     $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
     $query->execute();
     $admin = $query->fetch(PDO::FETCH_ASSOC);
