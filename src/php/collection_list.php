@@ -4,6 +4,15 @@ require 'config.php';
 try {
     $stmt = $pdo->query("SELECT collectes.id, collectes.date_collecte, IFNULL(benevoles.nom, 'Aucun bénévole') AS nom, collectes.lieu, GROUP_CONCAT(CONCAT(dechets_collectes.type_dechet, ' (', dechets_collectes.quantite_kg, 'kg)') SEPARATOR ', ') AS liste_types_dechet FROM dechets_collectes JOIN collectes ON dechets_collectes.id_collecte = collectes.id LEFT JOIN benevoles ON collectes.id_benevole = benevoles.id GROUP BY collectes.id ORDER BY collectes.date_collecte DESC");
     $collectes = $stmt->fetchAll();
+
+    $stmt2 = $pdo->query("
+        SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1)
+        AS quantite_total_des_dechets_collectes
+        FROM collectes
+        LEFT JOIN dechets_collectes ON collectes.id=dechets_collectes.id_collecte
+    ");
+    
+    $quantite = $stmt2->fetch(PDO::FETCH_ASSOC);
     
     $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
     $query->execute();
@@ -64,7 +73,7 @@ error_reporting(E_ALL);
             <!-- Nombre total de collectes -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h3 class="text-xl font-semibold text-gray-800 mb-3">Total des Collectes</h3>
-                <p class="text-3xl font-bold text-blue-600"><?= count($collectes) ?></p>
+                <p class="text-3xl font-bold text-blue-600"><?= htmlspecialchars(count($collectes)) ?></p>
             </div>
             <!-- Dernière collecte -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
