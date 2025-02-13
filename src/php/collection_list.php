@@ -12,6 +12,11 @@ try {
                 GROUP BY bc.id_collecte
                 ORDER BY c.date_collecte DESC");
     $collectes = $stmt->fetchAll();
+    
+    $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
+    $query->execute();
+    $admin = $query->fetch(PDO::FETCH_ASSOC);
+    $adminNom = $admin ? htmlspecialchars($admin['nom']) : 'Aucun administrateur trouvé';
 
     $stmt2 = $pdo->query("
         SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1)
