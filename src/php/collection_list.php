@@ -49,7 +49,7 @@ error_reporting(E_ALL);
         <?php endif; ?>
 
         <!-- Cartes d'informations -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Nombre total de collectes -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h3 class="text-xl font-semibold text-gray-800 mb-3">Total des Collectes</h3>
@@ -60,6 +60,11 @@ error_reporting(E_ALL);
                 <h3 class="text-xl font-semibold text-gray-800 mb-3">Dernière Collecte</h3>
                 <p class="text-lg text-gray-600"><?= htmlspecialchars($collectes[0]['lieu']) ?></p>
                 <p class="text-lg text-gray-600"><?= date('d/m/Y', strtotime($collectes[0]['date_collecte'])) ?></p>
+            </div>
+             <!-- quantité total déchet de la collecte -->
+             <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Total des déchets collecté </h3>
+                <p class="text-3xl font-bold text-blue-600"><?= $quantite['quantite_total_des_dechets_collectes'] ?> kg</p>
             </div>
             <!-- Bénévole Responsable -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
