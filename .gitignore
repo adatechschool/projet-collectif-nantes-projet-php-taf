@@ -1,1 +1,3 @@
 .vscode/
+src/php/config.php
+src/sql/gestion_collectes.sql
