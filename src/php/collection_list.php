@@ -19,9 +19,9 @@ try {
         FROM collectes
         LEFT JOIN dechets_collectes ON collectes.id=dechets_collectes.id_collecte
     ");
-    
+
     $quantite = $stmt2->fetch(PDO::FETCH_ASSOC);
-    
+
     $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
     $query->execute();
     $admin = $query->fetch(PDO::FETCH_ASSOC);
@@ -71,38 +71,10 @@ error_reporting(E_ALL);
             </header>
             <!-- Message de notification (ex: succès de suppression ou ajout) -->
             <?php if (isset($_GET['message'])): ?>
-
-<<<<<<< HEAD
                 <aside role="alert" class="bg-green-100 text-green-800 p-4 rounded-md mb-6">
                     <?= htmlspecialchars($_GET['message']) ?>
                 </aside>
             <?php endif; ?>
-=======
-        <!-- Cartes d'informations -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Nombre total de collectes -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h3 class="text-xl font-semibold text-gray-800 mb-3">Total des Collectes</h3>
-                <p class="text-3xl font-bold text-blue-600"><?= htmlspecialchars(count($collectes)) ?></p>
-            </div>
-            <!-- Dernière collecte -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h3 class="text-xl font-semibold text-gray-800 mb-3">Dernière Collecte</h3>
-                <p class="text-lg text-gray-600"><?= htmlspecialchars($collectes[0]['lieu']) ?></p>
-                <p class="text-lg text-gray-600"><?= date('d/m/Y', strtotime($collectes[0]['date_collecte'])) ?></p>
-            </div>
-             <!-- quantité total déchet de la collecte -->
-             <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h3 class="text-xl font-semibold text-gray-800 mb-3">Total des déchets collecté </h3>
-                <p class="text-3xl font-bold text-blue-600"><?= $quantite['quantite_total_des_dechets_collectes'] ?> kg</p>
-            </div>
-            <!-- Bénévole Responsable -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h3 class="text-xl font-semibold text-gray-800 mb-3">Bénévole Admin</h3>
-                <p class="text-lg text-gray-600"><?= $adminNom ?></p>
-            </div>
-        </div>
->>>>>>> 1d29076 (mise en forme)
 
             <!-- Cartes d'informations -->
 
