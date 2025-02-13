@@ -2,23 +2,17 @@
 require 'config.php';
 
 try {
-    $stmt = $pdo->query("
-        SELECT c.id, c.date_collecte, c.lieu, b.nom
-        FROM collectes c
-        LEFT JOIN benevoles b ON c.id_benevole = b.id
-        ORDER BY c.date_collecte DESC
-    ");
-
+    $stmt = $pdo->query("SELECT collectes.id, collectes.date_collecte, IFNULL(benevoles.nom, 'Aucun bénévole') AS nom, collectes.lieu, GROUP_CONCAT(CONCAT(dechets_collectes.type_dechet, ' (', dechets_collectes.quantite_kg, 'kg)') SEPARATOR ', ') AS liste_types_dechet FROM dechets_collectes JOIN collectes ON dechets_collectes.id_collecte = collectes.id LEFT JOIN benevoles ON collectes.id_benevole = benevoles.id GROUP BY collectes.id ORDER BY collectes.date_collecte DESC");
+    $collectes = $stmt->fetchAll();
+    
     $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
     $query->execute();
-
-    $collectes = $stmt->fetchAll();
     $admin = $query->fetch(PDO::FETCH_ASSOC);
     $adminNom = $admin ? htmlspecialchars($admin['nom']) : 'Aucun administrateur trouvé';
 
     $stmt2 = $pdo->query("
-        SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1) 
-        AS quantite_total_des_dechets_collectes 
+        SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1)
+        AS quantite_total_des_dechets_collectes
         FROM collectes
         LEFT JOIN dechets_collectes ON collectes.id=dechets_collectes.id_collecte
     ");
@@ -98,6 +92,7 @@ error_reporting(E_ALL);
                     <th class="py-3 px-4 text-left">Date</th>
                     <th class="py-3 px-4 text-left">Lieu</th>
                     <th class="py-3 px-4 text-left">Bénévole Responsable</th>
+                    <th class="py-3 px-4 text-left">Type de déchets (quantité par type en kg)</th>
                     <th class="py-3 px-4 text-left">Actions</th>
                 </tr>
                 </thead>
@@ -109,6 +104,7 @@ error_reporting(E_ALL);
                         <td class="py-3 px-4">
                             <?= $collecte['nom'] ? htmlspecialchars($collecte['nom']) : 'Aucun bénévole' ?>
                         </td>
+                        <td class="py-3 px-4"><?= htmlspecialchars($collecte['liste_types_dechet']) ?></td>
                         <td class="py-3 px-4 flex space-x-2">
                             <a href="collection_edit.php?id=<?= $collecte['id'] ?>" class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
                                 ✏️ Modifier
