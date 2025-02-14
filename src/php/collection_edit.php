@@ -105,7 +105,8 @@ require 'headElement.php';
                     <div>
                         <label class="block text-sm font-medium text-gray-700">
                             Date :
-                            <input type="date" name="date" value="<?= htmlspecialchars($collecte['date_collecte']) ?>" class="w-full p-2 border border-gray-300 rounded-lg">
+                            <input type="date" name="date" value="<?= htmlspecialchars($collecte['date_collecte']) ?>" required
+                                class="w-full p-2 border border-gray-300 rounded-lg">
                         </label>
                     </div>
                     <div>

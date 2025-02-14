@@ -95,7 +95,7 @@ error_reporting(E_ALL);
             <!-- Tableau des collectes -->
             <div class="overflow-hidden rounded-lg shadow-lg bg-white">
                 <table class="w-full table-auto border-collapse">
-                    <thead class="bg-blue-800 text-white">
+                    <thead class="text-white">
                         <tr>
                             <th scop="col" class="py-3 px-4 text-left">Date</th>
                             <th scop="col" class="py-3 px-4 text-left">Lieu</th>
