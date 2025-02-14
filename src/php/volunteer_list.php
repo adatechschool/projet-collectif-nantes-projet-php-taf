@@ -11,20 +11,7 @@ try {
     $offset = ($page - 1) * $limit;
 
     // récupération de la liste des bénévoles
-    $statement = $pdo->prepare("
-        SELECT 
-            benevoles.id, 
-            benevoles.nom, 
-            benevoles.email, 
-            benevoles.role, 
-            ROUND(COALESCE(SUM(dechets_collectes.quantite_kg), 0), 1) AS quantite_totale_dechets_kg
-        FROM benevoles 
-        LEFT JOIN collectes ON benevoles.id = collectes.id_benevole
-        LEFT JOIN dechets_collectes ON collectes.id = dechets_collectes.id_collecte
-        GROUP BY benevoles.id, benevoles.nom, benevoles.email, benevoles.role
-        ORDER BY benevoles.nom ASC
-        LIMIT :limit OFFSET :offset
-    "); // écriture de la requête
+    $statement = $pdo->prepare("SELECT benevoles.id, benevoles.nom, benevoles.email, benevoles.role, COALESCE(GROUP_CONCAT(CONCAT(collectes.lieu, ' (', collectes.date_collecte, ')') SEPARATOR ', '), 'Aucune participation pour le moment') AS 'participations' FROM benevoles LEFT JOIN benevoles_collectes ON benevoles.id = benevoles_collectes.id_benevole LEFT JOIN collectes ON collectes.id = benevoles_collectes.id_collecte GROUP BY benevoles.id ORDER BY benevoles.nom ASC LIMIT :limit OFFSET :offset"); // écriture de la requête
 
     // Sécurisation des variables dans la requête
     $statement->bindParam(':limit', $limit, PDO::PARAM_INT);
@@ -67,12 +54,14 @@ try {
             <!-- Tableau des bénévoles -->
             <div class="overflow-hidden rounded-lg shadow-lg bg-white">
                 <table class="w-full table-auto border-collapse">
+                    <!-- thead est un élément de tableau qui permet de créer un titre pour le tableau -->
                     <thead class="text-white">
+                        <!-- tr est un élément de tableau qui permet de créer une ligne dans le tableau -->
                         <tr>
                             <th class="py-3 px-4 text-left">Nom</th>
                             <th class="py-3 px-4 text-left">Email</th>
                             <th class="py-3 px-4 text-left">Rôle</th>
-                            <th class="py-2 px-4 border-b">Collections</th>
+                            <th class="py-2 px-4 border-b">Collectes</th>
                             <th class="py-3 px-4 text-left">Actions</th>
                         </tr>
                     </thead>
@@ -83,13 +72,15 @@ try {
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["email"]) ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["role"]) ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["participations"]) ? htmlspecialchars($volunteersList[$index]["participations"]) : "Aucune" ?></td>
-                                <td class="py-3 px-4">
-                                    <?php
-                                    $editUrl = "volunteer_edit.php?id=" . urlencode($volunteersList[$index]["id"]);
-                                    $deleteUrl = "volunteer_delete.php?id=" . urlencode($volunteersList[$index]["id"]);
-                                    $confirmMessage = "Êtes-vous sûr de vouloir supprimer ce bénévole ?";
-                                    require 'action_buttons.php';
-                                    ?>
+                                <td class="py-3 px-4 flex space-x-2">
+                                    <a href="volunteer_edit.php?id=<?= $volunteersList[$index]["id"] ?>"
+                                        class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                                        ✏️ Modifier
+                                    </a>
+                                    <a href="volunteer_delete.php?id=<?= $volunteersList[$index]["id"] ?>"
+                                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none         focus:ring-2 focus:ring-red-500 transition duration-200">
+                                        🗑️ Supprimer
+                                    </a>
                                 </td>
                             </tr>
 
@@ -100,7 +91,7 @@ try {
                 <div class="flex justify-center items-center space-x-4 mt-4">
                     <!-- Bouton Précédent -->
                     <a href="?page=<?= max(1, $page - 1) ?>"
-                        class="min-w-[120px] text-center bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow-md transition 
+                        class="min-w-[120px] text-center bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow-md transition
                         <?= ($page <= 1) ? 'pointer-events-none opacity-50' : '' ?>">
                         ⬅️ Précédent
                     </a>
@@ -109,7 +100,7 @@ try {
 
                     <!-- Bouton Suivant -->
                     <a href="?page=<?= min($totalPages, $page + 1) ?>"
-                        class="min-w-[120px] text-center bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-md transition 
+                        class="min-w-[120px] text-center bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-md transition
                         <?= ($page >= $totalPages) ? 'pointer-events-none opacity-50' : '' ?>">
                         Suivant ➡️
                     </a>

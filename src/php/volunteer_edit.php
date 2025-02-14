@@ -85,7 +85,7 @@ require 'headElement.php';
                     <div>
                         <label class="block text-sm font-medium text-gray-700">
                             mot de passe :
-                            <input type="password" name="mot_de_passe" value="<?= htmlspecialchars($benevole['mot_de_passe']) ?>" class="w-full p-2 border border-gray-300 rounded-lg">
+                            <input type="password" name="mot_de_passe" value="" class="w-full p-2 border border-gray-300 rounded-lg">
                         </label>
                     </div>
                     <div>
