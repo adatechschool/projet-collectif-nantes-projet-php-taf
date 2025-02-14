@@ -4,7 +4,7 @@ require 'config.php';
 try {
     $stmt = $pdo->query("SELECT collectes.id, collectes.date_collecte, IFNULL(benevoles.nom, 'Aucun bénévole') AS nom, collectes.lieu, GROUP_CONCAT(CONCAT(dechets_collectes.type_dechet, ' (', dechets_collectes.quantite_kg, 'kg)') SEPARATOR ', ') AS liste_types_dechet FROM dechets_collectes JOIN collectes ON dechets_collectes.id_collecte = collectes.id LEFT JOIN benevoles ON collectes.id_benevole = benevoles.id GROUP BY collectes.id ORDER BY collectes.date_collecte DESC");
     $collectes = $stmt->fetchAll();
-    
+
     $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
     $query->execute();
     $admin = $query->fetch(PDO::FETCH_ASSOC);
@@ -31,17 +31,10 @@ error_reporting(E_ALL);
 <!DOCTYPE html>
 <html lang="fr">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des Collectes</title>
-
-    <head>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Lora:wght@400;700&family=Montserrat:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Poppins:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;700&family=Nunito:wght@300;400;700&family=Merriweather:wght@300;400;700&family=Oswald:wght@300;400;700&display=swap" rel="stylesheet">
-    </head>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
-</head>
+<?php
+$pageTitle = "Liste des Collectes";
+require 'headElement.php';
+?>
 
 <body class="bg-gray-100 text-gray-900">
     <div class="flex h-screen">
@@ -49,9 +42,9 @@ error_reporting(E_ALL);
         <?php require 'navbar.php'; ?>
 
         <!-- Contenu principal -->
-        <div class="flex-1 p-8 overflow-y-auto">
+        <main class="flex-1 p-8 overflow-y-auto">
             <!-- Titre -->
-            <h1 class="text-4xl font-bold text-blue-800 mb-6">Liste des Collectes de Déchets</h1>
+            <h1 class="text-4xl font-bold mb-6">Liste des Collectes de Déchets</h1>
 
             <!-- Message de notification (ex: succès de suppression ou ajout) -->
             <?php if (isset($_GET['message'])): ?>
@@ -88,7 +81,7 @@ error_reporting(E_ALL);
             <!-- Tableau des collectes -->
             <div class="overflow-hidden rounded-lg shadow-lg bg-white">
                 <table class="w-full table-auto border-collapse">
-                    <thead class="bg-blue-800 text-white">
+                    <thead class="text-white">
                         <tr>
                             <th class="py-3 px-4 text-left">Date</th>
                             <th class="py-3 px-4 text-left">Lieu</th>
@@ -106,20 +99,20 @@ error_reporting(E_ALL);
                                     <?= $collecte['nom'] ? htmlspecialchars($collecte['nom']) : 'Aucun bénévole' ?>
                                 </td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($collecte['liste_types_dechet']) ?></td>
-                                <td class="py-3 px-4 flex space-x-2">
-                                    <a href="collection_edit.php?id=<?= $collecte['id'] ?>" class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                        ✏️ Modifier
-                                    </a>
-                                    <a href="collection_delete.php?id=<?= $collecte['id'] ?>" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette collecte ?');">
-                                        🗑️ Supprimer
-                                    </a>
+                                <td class="py-3 px-4">
+                                    <?php
+                                    $editUrl = "collection_edit.php?id=" . urlencode($collecte['id']);
+                                    $deleteUrl = "collection_delete.php?id=" . urlencode($collecte['id']);
+                                    $confirmMessage = "Êtes-vous sûr de vouloir supprimer cette collecte ?";
+                                    require 'action_buttons.php';
+                                    ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
-        </div>
+    </div>
     </div>
 </body>
 

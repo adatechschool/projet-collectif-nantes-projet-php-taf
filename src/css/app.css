@@ -1,0 +1,9 @@
+nav,
+thead,
+#actions a[href*="edit"], section#edition button {
+  background-color: var(--second-color);
+}
+
+main + h1 {
+  color: var(--first-color);
+}
