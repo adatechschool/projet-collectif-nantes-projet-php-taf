@@ -2,6 +2,10 @@
 require 'config.php';
 
 try {
+    $limit = 10;
+    $page = isset($GET['page']) ? (int)$GET['page'] : 1;
+    $offset = ($page -1) * $limit;
+
     $stmt = $pdo->query("SELECT collectes.id, collectes.date_collecte, IFNULL(benevoles.nom, 'Aucun bénévole') AS nom, collectes.lieu, GROUP_CONCAT(CONCAT(dechets_collectes.type_dechet, ' (', dechets_collectes.quantite_kg, 'kg)') SEPARATOR ', ') AS liste_types_dechet FROM dechets_collectes JOIN collectes ON dechets_collectes.id_collecte = collectes.id LEFT JOIN benevoles ON collectes.id_benevole = benevoles.id GROUP BY collectes.id ORDER BY collectes.date_collecte DESC");
     $collectes = $stmt->fetchAll();
     
@@ -12,8 +16,6 @@ try {
 
     $stmt2 = $pdo->query("
         SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1) 
-        AS quantite_total_des_dechets_collectes
-        SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1)
         AS quantite_total_des_dechets_collectes
         FROM collectes
         LEFT JOIN dechets_collectes ON collectes.id=dechets_collectes.id_collecte
@@ -38,9 +40,9 @@ error_reporting(E_ALL);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des Collectes</title>
 
-    <head>
+    <!-- <head>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Lora:wght@400;700&family=Montserrat:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Poppins:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;700&family=Nunito:wght@300;400;700&family=Merriweather:wght@300;400;700&family=Oswald:wght@300;400;700&display=swap" rel="stylesheet">
-    </head>
+    </head> -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 </head>
