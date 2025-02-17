@@ -82,6 +82,7 @@ try {
                                 </td>
                             </tr>
 
+                            <!-- syntaxe de fermeture d'une boucle -->
                         <?php endfor; ?>
                     </tbody>
                 </table>

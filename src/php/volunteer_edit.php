@@ -10,6 +10,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $id = $_GET['id'];
 $stmt = $pdo->prepare("SELECT id, nom, email, role FROM benevoles WHERE id = ?");
+
 $stmt->execute([$id]);
 $benevole = $stmt->fetch();
 

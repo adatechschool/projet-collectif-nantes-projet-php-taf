@@ -11,10 +11,11 @@ try {
                 LEFT JOIN dechets_collectes dc ON c.id = dc.id_collecte
                 GROUP BY bc.id_collecte
                 ORDER BY c.date_collecte DESC");
+
     $collectes = $stmt->fetchAll();
 
     $stmt2 = $pdo->query("
-        SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1)
+        SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1) 
         AS quantite_total_des_dechets_collectes
         FROM collectes
         LEFT JOIN dechets_collectes ON collectes.id=dechets_collectes.id_collecte
