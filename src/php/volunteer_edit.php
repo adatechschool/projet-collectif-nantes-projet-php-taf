@@ -6,7 +6,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
     exit;
 }
 $id = $_GET['id'];
-$stmt = $pdo->prepare("SELECT * FROM benevoles WHERE id = ?");
+$stmt = $pdo->prepare("SELECT id, nom, email, mot_de_passe, role FROM benevoles WHERE id = ?");
 $stmt->execute([$id]);
 $benevole = $stmt->fetch();
 
