@@ -2,7 +2,15 @@
 require 'config.php';
 
 try {
-    $stmt = $pdo->query("SELECT collectes.id, collectes.date_collecte, IFNULL(benevoles.nom, 'Aucun bénévole') AS nom, collectes.lieu, GROUP_CONCAT(CONCAT(dechets_collectes.type_dechet, ' (', dechets_collectes.quantite_kg, 'kg)') SEPARATOR ', ') AS liste_types_dechet FROM dechets_collectes JOIN collectes ON dechets_collectes.id_collecte = collectes.id LEFT JOIN benevoles ON collectes.id_benevole = benevoles.id GROUP BY collectes.id ORDER BY collectes.date_collecte DESC");
+    $stmt = $pdo->query("SELECT bc.id_collecte as id, c.date_collecte, c.lieu,
+                    GROUP_CONCAT(DISTINCT v.nom ORDER BY v.nom SEPARATOR ', ') AS benevoles,
+                    GROUP_CONCAT(DISTINCT CONCAT(COALESCE(dc.type_dechet, 'type non défini'), ' (', ROUND(COALESCE(dc.quantite_kg, 0), 1), 'kg)') ORDER BY dc.type_dechet SEPARATOR ', ') AS wasteDetails
+                FROM benevoles v
+                LEFT JOIN benevoles_collectes bc ON v.id = bc.id_benevole
+                LEFT JOIN collectes c ON c.id = bc.id_collecte
+                LEFT JOIN dechets_collectes dc ON c.id = dc.id_collecte
+                GROUP BY bc.id_collecte
+                ORDER BY c.date_collecte DESC");
     $collectes = $stmt->fetchAll();
 
     $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
@@ -85,7 +93,7 @@ require 'headElement.php';
                         <tr>
                             <th class="py-3 px-4 text-left">Date</th>
                             <th class="py-3 px-4 text-left">Lieu</th>
-                            <th class="py-3 px-4 text-left">Bénévole Responsable</th>
+                            <th class="py-3 px-4 text-left">Bénévoles</th>
                             <th class="py-3 px-4 text-left">Type de déchets (quantité par type en kg)</th>
                             <th class="py-3 px-4 text-left">Actions</th>
                         </tr>
@@ -96,9 +104,9 @@ require 'headElement.php';
                                 <td class="py-3 px-4"><?= date('d/m/Y', strtotime($collecte['date_collecte'])) ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($collecte['lieu']) ?></td>
                                 <td class="py-3 px-4">
-                                    <?= $collecte['nom'] ? htmlspecialchars($collecte['nom']) : 'Aucun bénévole' ?>
+                                    <?= $collecte['benevoles'] ? htmlspecialchars($collecte['benevoles']) : 'Aucun bénévole' ?>
                                 </td>
-                                <td class="py-3 px-4"><?= htmlspecialchars($collecte['liste_types_dechet']) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($collecte['wasteDetails']) ?></td>
                                 <td class="py-3 px-4">
                                     <?php
                                     $editUrl = "collection_edit.php?id=" . urlencode($collecte['id']);
