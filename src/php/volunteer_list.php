@@ -1,6 +1,9 @@
 <?php
-// permet de récupérer les paramètres de connexion à la base de données
 require 'config.php';
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 try {
     $limit = 10;
@@ -8,20 +11,7 @@ try {
     $offset = ($page - 1) * $limit;
 
     // récupération de la liste des bénévoles
-    $statement = $pdo->prepare("
-        SELECT 
-            benevoles.id, 
-            benevoles.nom, 
-            benevoles.email, 
-            benevoles.role, 
-            ROUND(COALESCE(SUM(dechets_collectes.quantite_kg), 0), 1) AS quantite_totale_dechets_kg
-        FROM benevoles 
-        LEFT JOIN collectes ON benevoles.id = collectes.id_benevole
-        LEFT JOIN dechets_collectes ON collectes.id = dechets_collectes.id_collecte
-        GROUP BY benevoles.id, benevoles.nom, benevoles.email, benevoles.role
-        ORDER BY benevoles.nom ASC
-        LIMIT :limit OFFSET :offset
-    "); // écriture de la requête
+    $statement = $pdo->prepare("SELECT benevoles.id, benevoles.nom, benevoles.email, benevoles.role, COALESCE(GROUP_CONCAT(CONCAT(collectes.lieu, ' (', collectes.date_collecte, ')') SEPARATOR ', '), 'Aucune participation pour le moment') AS 'participations' FROM benevoles LEFT JOIN benevoles_collectes ON benevoles.id = benevoles_collectes.id_benevole LEFT JOIN collectes ON collectes.id = benevoles_collectes.id_collecte GROUP BY benevoles.id ORDER BY benevoles.nom ASC LIMIT :limit OFFSET :offset"); // écriture de la requête
 
     // Sécurisation des variables dans la requête
     $statement->bindParam(':limit', $limit, PDO::PARAM_INT);
@@ -37,15 +27,6 @@ try {
     echo "Erreur de base de données : " . $e->getMessage();
     exit;
 }
-
-// active l'affichage des erreurs les rendant visible sur la page (à ne pas activer en production)
-ini_set('display_errors', 1);
-
-// active l'affichage des erreurs qui se produisent au démarrage de php (à ne pas activer en production)
-ini_set('display_startup_errors', 1);
-
-// définit les niveaux d'erreurs qui seront affichés (par exemple : E_ALL = tous les erreurs, E_ERROR = erreurs seulement, etc.) (à ne pas activer en production)
-error_reporting(E_ALL);
 ?>
 
 <!DOCTYPE html>
@@ -54,9 +35,10 @@ error_reporting(E_ALL);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des Bénévoles</title>
+    <link rel="stylesheet" href="/projet-collectif-nantes-projet-php-taf/src/css/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <title>Liste des Bénévoles</title>
 </head>
 
 <body class="bg-gray-100 text-gray-900">
@@ -65,36 +47,29 @@ error_reporting(E_ALL);
         <?php require 'navbar.php'; ?>
 
         <!-- Contenu principal -->
-        <div class="flex-1 p-8 overflow-y-auto">
+        <main class="flex-1 p-8 overflow-y-auto">
             <!-- Titre -->
-            <h1 class="text-4xl font-bold text-blue-800 mb-6">Liste des Bénévoles</h1>
+            <h1 class="text-4xl font-bold mb-6">Liste des Bénévoles</h1>
 
             <!-- Tableau des bénévoles -->
             <div class="overflow-hidden rounded-lg shadow-lg bg-white">
                 <table class="w-full table-auto border-collapse">
-                    <!-- thead est un élément de tableau qui permet de créer un titre pour le tableau -->
-                    <thead class="bg-blue-800 text-white">
-                        <!-- tr est un élément de tableau qui permet de créer une ligne dans le tableau -->
+                    <thead class="text-white">
                         <tr>
-                            <!-- th est un élément de tableau qui permet de créer une case titre dans le tableau -->
                             <th class="py-3 px-4 text-left">Nom</th>
                             <th class="py-3 px-4 text-left">Email</th>
                             <th class="py-3 px-4 text-left">Rôle</th>
-                            <th class="py-3 px-4 text-left">Quantité totale des déchets collectés (kg)</th>
+                            <th class="py-2 px-4 border-b">Collectes</th>
                             <th class="py-3 px-4 text-left">Actions</th>
                         </tr>
                     </thead>
-                    <!-- tbody est un élément de tableau qui permet de regrouper les lignes contenant les données -->
                     <tbody class="divide-y divide-gray-300">
-                        <!-- on définit une boucle qui parcourt toutes les données de la liste des bénévoles -->
                         <?php for ($index = 0; $index < count($volunteersList); $index++): ?>
                             <tr class="hover:bg-gray-100 transition duration-200">
-                                <!-- td est un élément de tableau qui permet de créer une case contenant de la donnée en lien avec le   titre-->
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["nom"]) ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["email"]) ?></td>
-                                <!-- htmlspecialchars permet de sécuriser les données qui sont affichées dans le tableau. Il convertit les caractères spéciaux HTML en entités HTML -->
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["role"]) ?></td>
-                                <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["quantite_totale_dechets_kg"]) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["participations"]) ? htmlspecialchars($volunteersList[$index]["participations"]) : "Aucune" ?></td>
                                 <td class="py-3 px-4 flex space-x-2">
                                     <a href="volunteer_edit.php?id=<?= $volunteersList[$index]["id"] ?>"
                                         class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
@@ -106,6 +81,7 @@ error_reporting(E_ALL);
                                     </a>
                                 </td>
                             </tr>
+
                             <!-- syntaxe de fermeture d'une boucle -->
                         <?php endfor; ?>
                     </tbody>
@@ -114,7 +90,7 @@ error_reporting(E_ALL);
                 <div class="flex justify-center items-center space-x-4 mt-4">
                     <!-- Bouton Précédent -->
                     <a href="?page=<?= max(1, $page - 1) ?>"
-                        class="min-w-[120px] text-center bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow-md transition 
+                        class="min-w-[120px] text-center bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow-md transition
                         <?= ($page <= 1) ? 'pointer-events-none opacity-50' : '' ?>">
                         ⬅️ Précédent
                     </a>
@@ -123,13 +99,13 @@ error_reporting(E_ALL);
 
                     <!-- Bouton Suivant -->
                     <a href="?page=<?= min($totalPages, $page + 1) ?>"
-                        class="min-w-[120px] text-center bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-md transition 
+                        class="min-w-[120px] text-center bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-md transition
                         <?= ($page >= $totalPages) ? 'pointer-events-none opacity-50' : '' ?>">
                         Suivant ➡️
                     </a>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 </body>
 
