@@ -10,7 +10,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $id = $_GET['id'];
 
 // Récupérer les informations de la collecte
-$stmt = $pdo->prepare("SELECT * FROM collectes WHERE id = ?");
+$stmt = $pdo->prepare("SELECT id, date_collecte, lieu FROM collectes WHERE id = ?");
 $stmt->execute([$id]);
 $collecte = $stmt->fetch();
 
