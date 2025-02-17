@@ -39,34 +39,42 @@ error_reporting(E_ALL);
 <!DOCTYPE html>
 <html lang="fr">
 
-<?php
-$pageTitle = "Liste des Collectes";
-require 'headElement.php';
-?>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/projet-collectif-nantes-projet-php-taf/src/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <title>Liste des Collectes</title>
+    </head>
 
-<body class="bg-gray-100 text-gray-900">
-    <div class="flex h-screen">
-        <!-- Barre de navigation -->
+    <body class="bg-gray-100 text-gray-900">
+        <div class="flex h-screen">
+            <!-- Barre de navigation -->
+
         <?php require 'navbar.php'; ?>
 
         <!-- Contenu principal -->
         <main class="flex-1 p-8 overflow-y-auto">
             <!-- Titre -->
-            <h1 class="text-4xl font-bold mb-6">Liste des Collectes de Déchets</h1>
-
+            <header>
+                <h1 class="text-4xl font-bold text-blue-800 mb-6">Liste des Collectes de Déchets</h1>
+            </header>
             <!-- Message de notification (ex: succès de suppression ou ajout) -->
             <?php if (isset($_GET['message'])): ?>
-                <div class="bg-green-100 text-green-800 p-4 rounded-md mb-6">
+
+                <aside role="alert" class="bg-green-100 text-green-800 p-4 rounded-md mb-6">
                     <?= htmlspecialchars($_GET['message']) ?>
-                </div>
+                </aside>
             <?php endif; ?>
 
             <!-- Cartes d'informations -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Nombre total de collectes -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     <h3 class="text-xl font-semibold text-gray-800 mb-3">Total des Collectes</h3>
-                    <p class="text-3xl font-bold text-blue-600"><?= htmlspecialchars(count($collectes)) ?></p>
+                    <p class="text-3xl font-bold text-blue-600"><?= count($collectes) ?></p>
                 </div>
                 <!-- Dernière collecte -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
@@ -84,18 +92,17 @@ require 'headElement.php';
                     <h3 class="text-xl font-semibold text-gray-800 mb-3">Bénévole Admin</h3>
                     <p class="text-lg text-gray-600"><?= $adminNom ?></p>
                 </div>
-            </div>
+            </section>
 
             <!-- Tableau des collectes -->
             <div class="overflow-hidden rounded-lg shadow-lg bg-white">
                 <table class="w-full table-auto border-collapse">
-                    <thead class="text-white">
+                    <thead class="bg-blue-800 text-white">
                         <tr>
-                            <th class="py-3 px-4 text-left">Date</th>
-                            <th class="py-3 px-4 text-left">Lieu</th>
-                            <th class="py-3 px-4 text-left">Bénévoles</th>
-                            <th class="py-3 px-4 text-left">Type de déchets (quantité par type en kg)</th>
-                            <th class="py-3 px-4 text-left">Actions</th>
+                            <th scop="col" class="py-3 px-4 text-left">Date</th>
+                            <th scop="col" class="py-3 px-4 text-left">Lieu</th>
+                            <th scop="col" class="py-3 px-4 text-left">Bénévole Responsable</th>
+                            <th scop="col" class="py-3 px-4 text-left">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-300">
@@ -104,24 +111,32 @@ require 'headElement.php';
                                 <td class="py-3 px-4"><?= date('d/m/Y', strtotime($collecte['date_collecte'])) ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($collecte['lieu']) ?></td>
                                 <td class="py-3 px-4">
-                                    <?= $collecte['benevoles'] ? htmlspecialchars($collecte['benevoles']) : 'Aucun bénévole' ?>
+                                    <?= $collecte['nom'] ? htmlspecialchars($collecte['nom']) : 'Aucun bénévole' ?>
                                 </td>
-                                <td class="py-3 px-4"><?= htmlspecialchars($collecte['wasteDetails']) ?></td>
-                                <td class="py-3 px-4">
-                                    <?php
-                                    $editUrl = "collection_edit.php?id=" . urlencode($collecte['id']);
-                                    $deleteUrl = "collection_delete.php?id=" . urlencode($collecte['id']);
-                                    $confirmMessage = "Êtes-vous sûr de vouloir supprimer cette collecte ?";
-                                    require 'action_buttons.php';
-                                    ?>
+                                <td class="py-3 px-4 flex space-x-2">
+                                    <a href="collection_edit.php?id=<?= $collecte['id'] ?>"
+                                        class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                                        aria-label="Modifier la collecte <?= htmlspecialchars($collecte['nom']) ?>"
+                                        role="button"
+                                        title="Modifier la collecte <?= htmlspecialchars($collecte['nom']) ?>">
+                                        ✏️ Modifier
+                                    </a>
+
+                                    <a href="collection_delete.php?id=<?= $collecte['id'] ?>"
+                                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200" aria-label="supprimer une collecte"
+                                        role="button"
+                                        title="supprimer une collecte"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette collecte ?');">
+                                        🗑️ Supprimer
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
-    </div>
-    </div>
-</body>
+        </main>
+        </div>
+    </body>
 
 </html>

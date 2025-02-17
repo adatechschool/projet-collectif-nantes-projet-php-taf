@@ -1,8 +1,5 @@
-<?php
-$currentPage = isset($currentPage) ? $currentPage : '';
-?>
 
-<nav class="text-white w-64 p-6">
+<nav role="navigation" class="bg-cyan-200 text-white w-64 p-6">
   <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
   <ul>
     <li>
