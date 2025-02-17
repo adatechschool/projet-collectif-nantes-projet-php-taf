@@ -54,9 +54,7 @@ try {
             <!-- Tableau des bénévoles -->
             <div class="overflow-hidden rounded-lg shadow-lg bg-white">
                 <table class="w-full table-auto border-collapse">
-                    <!-- thead est un élément de tableau qui permet de créer un titre pour le tableau -->
                     <thead class="text-white">
-                        <!-- tr est un élément de tableau qui permet de créer une ligne dans le tableau -->
                         <tr>
                             <th class="py-3 px-4 text-left">Nom</th>
                             <th class="py-3 px-4 text-left">Email</th>
