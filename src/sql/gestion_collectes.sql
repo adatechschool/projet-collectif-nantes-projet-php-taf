@@ -28,14 +28,16 @@ CREATE TABLE
     `nom` VARCHAR(100) NOT NULL,
     `email` VARCHAR(100) NOT NULL UNIQUE KEY,
     `mot_de_passe` VARCHAR(255) NOT NULL,
-    `role` ENUM ('admin', 'participant') NOT NULL
+    `role` ENUM ('admin', 'participant') NOT NULL,
+    INDEX `idx_nom` (`nom`)
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE
   `collectes` (
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `date_collecte` DATE NOT NULL,
-    `lieu` VARCHAR(255) NOT NULL
+    `lieu` VARCHAR(255) NOT NULL,
+    INDEX `idx_collecte_date` (`date_collecte`)
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE
