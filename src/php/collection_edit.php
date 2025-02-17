@@ -1,9 +1,11 @@
 <?php
 require 'config.php';
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 $dashboardRedirection = "Location: collection_list.php";
 
-// Vérifier si un ID de collecte est fourni
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header($dashboardRedirection);
     exit;
@@ -21,26 +23,61 @@ if (!$collecte) {
     exit;
 }
 
+$stmtBc = $pdo->prepare("SELECT id_benevole FROM benevoles_collectes WHERE id_collecte = ?");
+$stmtBc->execute([$id]);
+$selectedBenevoles = $stmtBc->fetchAll(PDO::FETCH_COLUMN);
+
 // Récupérer la liste des bénévoles
 $stmt_benevoles = $pdo->prepare("SELECT id, nom FROM benevoles ORDER BY nom");
 $stmt_benevoles->execute();
 $benevoles = $stmt_benevoles->fetchAll();
 
-// Mettre à jour la collecte
+$stmtWasteItems = $pdo->prepare("SELECT type_dechet, quantite_kg FROM dechets_collectes WHERE id_collecte = ?");
+$stmtWasteItems->execute([$id]);
+$wasteItems = $stmtWasteItems->fetchAll();
+
+$stmtWasteTypes = $pdo->query("SELECT DISTINCT type_dechet FROM dechets_collectes");
+$wasteTypes = $stmtWasteTypes->fetchAll(PDO::FETCH_COLUMN);
+
+if (empty($wasteItems)) {
+    $wasteItems[] = ['type_dechet' => '', 'quantite_kg' => ''];
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $date = $_POST["date"];
     $lieu = $_POST["lieu"];
-    $benevole_id = $_POST["benevole"]; // Récupérer l'ID du bénévole sélectionné
+    $benevoles_ids = isset($_POST['benevoles']) ? $_POST['benevoles'] : [];
     $type_de_dechet = $_POST["type_dechet"];
     $quantite_dechet = $_POST["quantite_kg"];
-    $collecte_id = $_POST["collecte"];
 
-    $stmt = $pdo->prepare("UPDATE collectes SET date_collecte = ?, lieu = ?, id_benevole = ? WHERE id = ?");
-    $stmt->execute([$date, $lieu, $benevole_id, $id]);
+    $stmtUpdate = $pdo->prepare("UPDATE collectes SET date_collecte = COALESCE(?, date_collecte), lieu = COALESCE(?, lieu) WHERE id = ?");
+    if (!$stmtUpdate->execute([$date, $lieu, $id])) {
+        die('Erreur lors de la mise à jour de la collecte.');
+    }
 
-    $stmt2 = $pdo->prepare("INSERT INTO dechets_collectes (id_collecte, type_dechet, quantite_kg) VALUES (?,?,?)");
-    $stmt2->execute([$id, $type_de_dechet, $quantite_dechet]);
-    header("Location: collection_list.php");
+    $stmtDeleteBc = $pdo->prepare("DELETE FROM benevoles_collectes WHERE id_collecte = ?");
+    $stmtDeleteBc->execute([$id]);
+    $stmtInsertBc = $pdo->prepare("INSERT INTO benevoles_collectes (id_collecte, id_benevole) VALUES (?, ?)");
+    foreach ($benevoles_ids as $benevole_id) {
+        if (!$stmtInsertBc->execute([$id, $benevole_id])) {
+            die('Erreur lors de la mise à jour des bénévoles de la collecte.');
+        }
+    }
+
+    $stmtDeleteWaste = $pdo->prepare("DELETE FROM dechets_collectes WHERE id_collecte = ?");
+    $stmtDeleteWaste->execute([$id]);
+    if (isset($_POST['type_dechet']) && isset($_POST['quantite_kg'])) {
+        $stmtWaste = $pdo->prepare("INSERT INTO dechets_collectes (id_collecte, type_dechet, quantite_kg) VALUES (?, ?, ?)");
+        $types = $_POST['type_dechet'];
+        $quantities = $_POST['quantite_kg'];
+        for ($i = 0; $i < count($types); $i++) {
+            if (!empty($types[$i]) && is_numeric($quantities[$i])) {
+                $stmtWaste->execute([$id, $types[$i], $quantities[$i]]);
+            }
+        }
+    }
+
+    header($dashboardRedirection);
     exit;
 }
 ?>
@@ -68,61 +105,94 @@ require 'headElement.php';
                     <div>
                         <label class="block text-sm font-medium text-gray-700">
                             Date :
-                            <input type="date" name="date" value="<?= htmlspecialchars($collecte['date_collecte']) ?>" required
-                                class="w-full p-2 border border-gray-300 rounded-lg">
+                            <input type="date" name="date" value="<?= htmlspecialchars($collecte['date_collecte']) ?>" class="w-full p-2 border border-gray-300 rounded-lg">
                         </label>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">
                             Lieu :
-                            <input type="text" name="lieu" value="<?= htmlspecialchars($collecte['lieu']) ?>" required
-                                class="w-full p-2 border border-gray-300 rounded-lg">
+                            <input type="text" name="lieu" value="<?= htmlspecialchars($collecte['lieu']) ?>" class="w-full p-2 border border-gray-300 rounded-lg">
                         </label>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">
-                            Bénévole :
-                            <select name="benevole" required
-                                class="w-full p-2 border border-gray-300 rounded-lg">
-                                <option value="" disabled selected>Sélectionnez un·e bénévole</option>
-                                <?php foreach ($benevoles as $benevole): ?>
-                                    <option value="<?= $benevole['id'] ?>" <?= $benevole['id'] == $collecte['id_benevole'] ? 'selected' : '' ?>>
+                        <span class="block text-sm font-medium text-gray-700 mb-2">Bénévoles :</span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <?php foreach ($benevoles as $benevole): ?>
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="benevoles[]" value="<?= $benevole['id'] ?>" id="benevole_<?= $benevole['id'] ?>" class="mr-2"
+                                        <?= in_array($benevole['id'], $selectedBenevoles) ? 'checked' : '' ?>>
+                                    <label for="benevole_<?= $benevole['id'] ?>" class="text-gray-700">
                                         <?= htmlspecialchars($benevole['nom']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </label>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">
-                            Type de déchet :
-                            <select name="type_dechet" required class="w-full p-2 border border-gray-300 rounded-lg">
-                                <option value="" disabled selected>Sélectionnez le type</option>
-                                <option value="plastique">Plastique</option>
-                                <option value="verre">Verre</option>
-                                <option value="papier">Papier</option>
-                                <option value="metal">Métal</option>
-                                <option value="organique">Organique</option>
-                            </select>
-                        </label>
+                        <span class="block text-sm font-medium text-gray-700 mb-2">Déchets collectés :</span>
+                        <div id="waste-container">
+                            <?php foreach ($wasteItems as $item):
+                                // Construire les options pour le select avec le type déjà sélectionné
+                                $selectOptions = "<option value=''>Sélectionner un type</option>";
+                                foreach ($wasteTypes as $wasteType) {
+                                    $selected = ($wasteType == $item['type_dechet']) ? 'selected' : '';
+                                    $selectOptions .= "<option value='" . htmlspecialchars($wasteType) . "' $selected>" . htmlspecialchars($wasteType) . "</option>";
+                                }
+                            ?>
+                                <div class="waste-item flex space-x-4 mb-2">
+                                    <select name="type_dechet[]" required class="w-full p-2 border border-gray-300 rounded-lg">
+                                        <?= $selectOptions ?>
+                                    </select>
+                                    <input type="number" step="any" name="quantite_kg[]" placeholder="Quantité (kg)" value="<?= htmlspecialchars($item['quantite_kg']) ?>" required class="w-full p-2 border border-gray-300 rounded-lg">
+                                    <button type="button" class="remove-waste bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
+                                        Supprimer
+                                    </button>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <button type="button" id="add-waste" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mt-2">
+                            Ajouter un déchet
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">
-                            Quantité (kg) :
-                            <input type="number" name="quantite_kg" step="0.1" min="0" required
-                                class="w-full p-2 border border-gray-300 rounded-lg"
-                                value="<?= htmlspecialchars($collecte['quantite_kg'] ?? '') ?>">
-                        </label>
+                    <div class="flex justify-end space-x-4">
+                        <a href="collection_list.php" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow">Annuler</a>
+                        <button type="submit" class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow">
+                            ✏️ Modifier
+                        </button>
                     </div>
-                    <?php
-                    $cancellationUrl = "collection_list.php";
-                    require 'edit_buttons.php';
-                    ?>
                 </form>
             </div>
     </div>
     </div>
+    <script>
+        const wasteRowTemplate = `
+            <div class="waste-item flex space-x-4 mb-2">
+                <select name="type_dechet[]" required class="w-full p-2 border border-gray-300 rounded-lg">
+                    <option value="">Sélectionner un type</option>
+                    <?php foreach ($wasteTypes as $wasteType): ?>
+                        <option value="<?= htmlspecialchars($wasteType) ?>"><?= htmlspecialchars($wasteType) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <input type="number" step="any" name="quantite_kg[]" placeholder="Quantité (kg)" required class="w-full p-2 border border-gray-300 rounded-lg">
+                <button type="button" class="remove-waste bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
+                    Supprimer
+                </button>
+            </div>
+        `;
+
+        document.getElementById('add-waste').addEventListener('click', function() {
+            const container = document.getElementById('waste-container');
+            container.insertAdjacentHTML('beforeend', wasteRowTemplate);
+        });
+
+        // Gérer la suppression d'une ligne de déchet
+        document.getElementById('waste-container').addEventListener('click', function(e) {
+            if (e.target && e.target.matches('button.remove-waste')) {
+                e.target.parentNode.remove();
+            }
+        });
+    </script>
 </body>
 
 </html>
