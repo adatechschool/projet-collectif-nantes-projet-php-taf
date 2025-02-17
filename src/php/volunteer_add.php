@@ -4,19 +4,28 @@ require "config.php";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// on vérifie si la requête est une méthode POST
+$stmtCollections = $pdo->query("SELECT id, CONCAT(date_collecte, ' - ', lieu) AS collection_label FROM collectes ORDER BY date_collecte");
+$collections = $stmtCollections->fetchAll(PDO::FETCH_ASSOC);
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // on récupère les valeurs de la requête sous forme de super globales
     $name = $_POST['nom'];
     $email = $_POST['email'];
     $password = $_POST['mot_de_passe'];
     $role = $_POST['role'];
 
-    // gestion des erreurs
     try {
         $statement = $pdo->prepare("INSERT INTO benevoles(nom, email, mot_de_passe, role) VALUES (?, ?, ?, ?)");
         if (!$statement->execute([$name, $email, $password, $role])) {
             die("Erreur lors de l'insertion dans la base de données.");
+        }
+
+        $volunteer_id = $pdo->lastInsertId();
+
+        if (isset($_POST['attendances'])) {
+            $stmtBC = $pdo->prepare("INSERT INTO benevoles_collectes (id_benevole, id_collecte) VALUES (?, ?)");
+            foreach ($_POST['attendances'] as $collection_id) {
+                $stmtBC->execute([$volunteer_id, $collection_id]);
+            }
         }
 
         header("Location: volunteer_list.php");
@@ -26,9 +35,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 }
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -90,9 +96,25 @@ require 'headElement.php';
                         </label>
                     </div>
 
-                    <div class="mt-6">
-                        <button type="submit"
-                            class="w-full bg-cyan-200 hover:bg-cyan-600 text-white py-3 rounded-lg shadow-md font-semibold">
+                    <div class="mb-4">
+                        <span class="block text-gray-700 font-medium mb-2">Participations :</span>
+                        <?php if (!empty($collections)): ?>
+                            <?php foreach ($collections as $collection): ?>
+                                <div class="flex items-center mb-2">
+                                    <input type="checkbox" name="attendances[]" value="<?= htmlspecialchars($collection['id']) ?>" id="collection_<?= htmlspecialchars($collection['id']) ?>" class="mr-2">
+                                    <label for="collection_<?= htmlspecialchars($collection['id']) ?>" class="text-gray-700">
+                                        <?= htmlspecialchars($collection['collection_label']) ?>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="text-gray-500">Aucune collecte n'est disponible pour l'instant.</p>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <a href="volunteer_list.php" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow">Annuler</a>
+                        <button type="submit" class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-md font-semibold">
                             Ajouter le bénévole
                         </button>
                     </div>

@@ -4,7 +4,7 @@ require 'config.php';
 try {
     $stmt = $pdo->query("SELECT bc.id_collecte as id, c.date_collecte, c.lieu,
                     GROUP_CONCAT(DISTINCT v.nom ORDER BY v.nom SEPARATOR ', ') AS benevoles,
-                    GROUP_CONCAT(DISTINCT CONCAT(COALESCE(dc.type_dechet, 'type non défini'), ' (', ROUND(COALESCE(dc.quantite_kg, 0), 1), 'kg)') ORDER BY dc.type_dechet SEPARATOR ', ') AS wasteDetails
+                    GROUP_CONCAT(DISTINCT CONCAT(COALESCE(dc.type_dechet, 'type(s) non défini(s)'), ' (', ROUND(COALESCE(dc.quantite_kg, 0), 1), 'kg)') ORDER BY dc.type_dechet SEPARATOR ', ') AS wasteDetails
                 FROM benevoles v
                 INNER JOIN benevoles_collectes bc ON v.id = bc.id_benevole
                 INNER JOIN collectes c ON c.id = bc.id_collecte
