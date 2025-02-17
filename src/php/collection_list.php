@@ -19,9 +19,9 @@ try {
         FROM collectes
         LEFT JOIN dechets_collectes ON collectes.id=dechets_collectes.id_collecte
     ");
-    
+
     $quantite = $stmt2->fetch(PDO::FETCH_ASSOC);
-    
+
     $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
     $query->execute();
     $admin = $query->fetch(PDO::FETCH_ASSOC);
