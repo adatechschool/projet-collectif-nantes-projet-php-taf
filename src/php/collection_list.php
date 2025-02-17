@@ -103,8 +103,8 @@ error_reporting(E_ALL);
                         <tr>
                             <th scop="col" class="py-3 px-4 text-left">Date</th>
                             <th scop="col" class="py-3 px-4 text-left">Lieu</th>
-                            <th scop="col" class="py-3 px-4 text-left">Bénévole Responsable</th>
-                            <th scop="col" class="py-3 px-4 text-left">Type de déchets (quantité par type en kg)</th>
+                            <th scop="col" class="py-3 px-4 text-left">Bénévoles</th>
+                            <th scop="col" class="py-3 px-4 text-left">Collectes</th>
                             <th scop="col" class="py-3 px-4 text-left">Actions</th>
                         </tr>
                     </thead>
