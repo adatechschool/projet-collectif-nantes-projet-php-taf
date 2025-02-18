@@ -66,7 +66,10 @@ try {
                             <th class="py-3 px-4 text-left">Email</th>
                             <th class="py-3 px-4 text-left">Rôle</th>
                             <th class="py-2 px-4 border-b">Collectes</th>
+                            <?php if($_SESSION["role"] !== "admin"): ?>
+                                <?php else: ?>
                             <th class="py-3 px-4 text-left">Actions</th>
+                            <?php endif ?>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-300">
@@ -76,6 +79,8 @@ try {
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["email"]) ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["role"]) ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["participations"]) ? htmlspecialchars($volunteersList[$index]["participations"]) : "Aucune" ?></td>
+                                <?php if($_SESSION["role"] !== "admin"): ?>
+                                    <?php else: ?>
                                 <td class="py-3 px-4 flex space-x-2">
                                     <a href="volunteer_edit.php?id=<?= $volunteersList[$index]["id"] ?>"
                                         class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
@@ -86,6 +91,7 @@ try {
                                         🗑️ Supprimer
                                     </a>
                                 </td>
+                                <?php endif ?>
                             </tr>
 
                             <!-- syntaxe de fermeture d'une boucle -->
