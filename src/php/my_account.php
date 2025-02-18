@@ -57,7 +57,7 @@ require 'headElement.php';
         <!-- Contenu principal -->
         <main class="flex-1 p-8 overflow-y-auto">
             <!-- Titre -->
-            <h1 class="text-4xl font-bold mb-6">Mon compte</h1>
+            <h1 class="text-4xl text-cyan-950 font-bold mb-6">Mon compte</h1>
 
             <!-- Message de succès ou d'erreur -->
             <?php if (!empty($error)) : ?>
@@ -107,7 +107,7 @@ require 'headElement.php';
                     <a href="collection_list.php" class="text-sm text-blue-600 hover:underline">Retour à la liste des
                         collectes</a>
                     <button type="submit"
-                        class="bg-cyan-200 hover:bg-cyan-600 text-white px-6 py-2 rounded-lg shadow-md">
+                        class="bg-cyan-200 hover:bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md">
                         Mettre à jour
                     </button>
                 </div>

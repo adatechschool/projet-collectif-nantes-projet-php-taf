@@ -1,6 +1,6 @@
 <?php
 session_start();
-if(!isset($_SESSION["user_id"])){
+if (!isset($_SESSION["user_id"])) {
     header('Location: login.php');
     exit();
 }
@@ -55,20 +55,20 @@ try {
         <!-- Contenu principal -->
         <main class="flex-1 p-8 overflow-y-auto">
             <!-- Titre -->
-            <h1 class="text-4xl font-bold mb-6">Liste des Bénévoles</h1>
+            <h1 class="text-4xl text-cyan-950 font-bold mb-6">Liste des Bénévoles</h1>
 
             <!-- Tableau des bénévoles -->
             <div class="overflow-hidden rounded-lg shadow-lg bg-white">
                 <table class="w-full table-auto border-collapse">
-                    <thead class="text-white">
+                    <thead class="bg-cyan-950 text-white">
                         <tr>
                             <th class="py-3 px-4 text-left">Nom</th>
                             <th class="py-3 px-4 text-left">Email</th>
                             <th class="py-3 px-4 text-left">Rôle</th>
                             <th class="py-2 px-4 border-b">Collectes</th>
-                            <?php if($_SESSION["role"] !== "admin"): ?>
-                                <?php else: ?>
-                            <th class="py-3 px-4 text-left">Actions</th>
+                            <?php if ($_SESSION["role"] !== "admin"): ?>
+                            <?php else: ?>
+                                <th class="py-3 px-4 text-left">Actions</th>
                             <?php endif ?>
                         </tr>
                     </thead>
@@ -79,18 +79,18 @@ try {
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["email"]) ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["role"]) ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($volunteersList[$index]["participations"]) ? htmlspecialchars($volunteersList[$index]["participations"]) : "Aucune" ?></td>
-                                <?php if($_SESSION["role"] !== "admin"): ?>
-                                    <?php else: ?>
-                                <td class="py-3 px-4 flex space-x-2">
-                                    <a href="volunteer_edit.php?id=<?= $volunteersList[$index]["id"] ?>"
-                                        class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                        ✏️ Modifier
-                                    </a>
-                                    <a href="volunteer_delete.php?id=<?= $volunteersList[$index]["id"] ?>"
-                                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none         focus:ring-2 focus:ring-red-500 transition duration-200">
-                                        🗑️ Supprimer
-                                    </a>
-                                </td>
+                                <?php if ($_SESSION["role"] !== "admin"): ?>
+                                <?php else: ?>
+                                    <td class="py-3 px-4 flex space-x-2">
+                                        <a href="volunteer_edit.php?id=<?= $volunteersList[$index]["id"] ?>"
+                                            class="bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                                            Modifier
+                                        </a>
+                                        <a href="volunteer_delete.php?id=<?= $volunteersList[$index]["id"] ?>"
+                                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none         focus:ring-2 focus:ring-red-500 transition duration-200">
+                                            Supprimer
+                                        </a>
+                                    </td>
                                 <?php endif ?>
                             </tr>
 
@@ -98,24 +98,23 @@ try {
                         <?php endfor; ?>
                     </tbody>
                 </table>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+                <!-- Bouton Précédent -->
+                <a href="?page=<?= max(1, $page - 1) ?>"
+                    class="min-w-[120px] text-center bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition
+                    <?= ($page <= 1) ? 'pointer-events-none opacity-50' : '' ?>">
+                    Précédent
+                </a>
 
-                <div class="flex justify-center items-center space-x-4 mt-4">
-                    <!-- Bouton Précédent -->
-                    <a href="?page=<?= max(1, $page - 1) ?>"
-                        class="min-w-[120px] text-center bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow-md transition
-                        <?= ($page <= 1) ? 'pointer-events-none opacity-50' : '' ?>">
-                        ⬅️ Précédent
-                    </a>
+                <span class="text-gray-700 font-semibold">Page <?= $page ?> sur <?= $totalPages ?></span>
 
-                    <span class="text-gray-700 font-semibold">Page <?= $page ?> sur <?= $totalPages ?></span>
-
-                    <!-- Bouton Suivant -->
-                    <a href="?page=<?= min($totalPages, $page + 1) ?>"
-                        class="min-w-[120px] text-center bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-md transition
-                        <?= ($page >= $totalPages) ? 'pointer-events-none opacity-50' : '' ?>">
-                        Suivant ➡️
-                    </a>
-                </div>
+                <!-- Bouton Suivant -->
+                <a href="?page=<?= min($totalPages, $page + 1) ?>"
+                    class="min-w-[120px] text-center bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition
+                    <?= ($page >= $totalPages) ? 'pointer-events-none opacity-50' : '' ?>">
+                    Suivant
+                </a>
             </div>
         </main>
     </div>

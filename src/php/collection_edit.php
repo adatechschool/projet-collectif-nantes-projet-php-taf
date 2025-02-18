@@ -1,6 +1,6 @@
 <?php
 session_start();
-if(!isset($_SESSION["user_id"])){
+if (!isset($_SESSION["user_id"])) {
     header('Location: login.php');
     exit();
 }
@@ -91,10 +91,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <!DOCTYPE html>
 <html lang="fr">
 
-<?php
-$pageTitle = "Modifier une collecte";
-require 'headElement.php';
-?>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/projet-collectif-nantes-projet-php-taf/src/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <title>Modifier une collecte</title>
+</head>
 
 <body class="bg-gray-100 text-gray-900">
     <div class="flex h-screen">
@@ -103,7 +107,7 @@ require 'headElement.php';
 
         <!-- Contenu principal -->
         <main class="flex-1 p-8 overflow-y-auto">
-            <h1 class="text-4xl font-bold text-blue-900 mb-6">Modifier une collecte</h1>
+            <h1 class="text-4xl font-bold text-cyan-950 mb-6">Modifier une collecte</h1>
 
             <!-- Formulaire -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
@@ -151,20 +155,20 @@ require 'headElement.php';
                                         <?= $selectOptions ?>
                                     </select>
                                     <input type="number" step="any" name="quantite_kg[]" placeholder="Quantité (kg)" value="<?= htmlspecialchars($item['quantite_kg']) ?>" required class="w-full p-2 border border-gray-300 rounded-lg">
-                                    <button type="button" class="remove-waste bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
+                                    <button type="button" class="bg-cyan-950 remove-waste bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
                                         Supprimer
                                     </button>
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        <button type="button" id="add-waste" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mt-2">
+                        <button type="button" id="add-waste" class="bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mt-2">
                             Ajouter un déchet
                         </button>
                     </div>
                     <div class="flex justify-end space-x-4">
                         <a href="collection_list.php" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow">Annuler</a>
-                        <button type="submit" class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow">
-                            ✏️ Modifier
+                        <button type="submit" class="bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow">
+                            Modifier
                         </button>
                     </div>
                 </form>
