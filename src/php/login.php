@@ -34,7 +34,6 @@ require 'headElement.php';
 ?>
 
 <body class="bg-gray-100 text-gray-900">
-
     <div class="flex justify-center items-center min-h-screen">
         <div class="bg-white p-8 rounded-lg shadow-lg w-full sm:w-96">
             <h1 class="text-3xl font-bold text-blue-900 mb-6 text-center">Connexion</h1>

@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-session_start();
-
 $host = '127.0.0.1';
 $dbname = 'gestion_collectes';
 $username = 'root';
