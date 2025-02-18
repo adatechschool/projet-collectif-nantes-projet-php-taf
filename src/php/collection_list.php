@@ -111,7 +111,10 @@ error_reporting(E_ALL);
                             <th scop="col" class="py-3 px-4 text-left">Lieu</th>
                             <th scop="col" class="py-3 px-4 text-left">Bénévoles</th>
                             <th scop="col" class="py-3 px-4 text-left">Collectes</th>
+                            <?php if($_SESSION["role"] !== "admin"): ?>
+                                <?php else: ?>
                             <th scop="col" class="py-3 px-4 text-left">Actions</th>
+                            <?php endif ?>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-300">
@@ -123,6 +126,8 @@ error_reporting(E_ALL);
                                     <?= $collecte['benevoles'] ? htmlspecialchars($collecte['benevoles']) : 'Aucun bénévole' ?>
                                 </td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($collecte['wasteDetails']) ?></td>
+                                <?php if($_SESSION["role"] !== "admin"): ?>
+                                    <?php else: ?>
                                 <td class="py-3 px-4 flex space-x-2">
                                     <a href="collection_edit.php?id=<?= $collecte['id'] ?>" class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" aria-label="Modifier la collecte <?= htmlspecialchars($collecte['benevoles']) ?>" role="button"
                                         title="Modifier la collecte <?= htmlspecialchars($collecte['benevoles']) ?>">
@@ -137,6 +142,7 @@ error_reporting(E_ALL);
                                         🗑️ Supprimer
                                     </a>
                                 </td>
+                                <?php endif ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

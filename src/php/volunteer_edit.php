@@ -5,6 +5,11 @@ if(!isset($_SESSION["user_id"])){
     exit();
 }
 
+if($_SESSION["role"]!=="admin") {
+    header("Location: volunteer_list.php");
+    exit();
+}
+
 require 'config.php';
 
 $volunteerListRedirection = "Location: volunteer_list.php";
@@ -33,9 +38,9 @@ $stmtAttendances->execute([$id]);
 $currentAttendances = $stmtAttendances->fetchAll(PDO::FETCH_COLUMN, 0);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $nom = $_POST["nom"];
-    $email = $_POST["email"];
-    $password = $_POST["mot_de_passe"];
+    // $nom = $_POST["nom"];
+    // $email = $_POST["email"];
+    // $password = $_POST["mot_de_passe"];
     $role = $_POST["role"];
 
 
@@ -80,10 +85,10 @@ require 'headElement.php';
                     <div>
                         <label class="block text-sm font-medium text-gray-700">
                             nom :
-                            <input type="text" name="nom" value="<?= htmlspecialchars($benevole['nom']) ?>" class="w-full p-2 border border-gray-300 rounded-lg">
+                            <input disabled type="text" name="nom" value="<?= htmlspecialchars($benevole['nom']) ?>" class="w-full p-2 border border-gray-300 rounded-lg">
                         </label>
                     </div>
-                    <div>
+                    <!-- <div>
                         <label class="block text-sm font-medium text-gray-700">
                             email :
                             <input type="email" name="email" value="<?= htmlspecialchars($benevole['email']) ?>" class="w-full p-2 border border-gray-300 rounded-lg">
@@ -94,7 +99,7 @@ require 'headElement.php';
                             mot de passe :
                             <input type="password" name="mot_de_passe" value="" class="w-full p-2 border border-gray-300 rounded-lg">
                         </label>
-                    </div>
+                    </div> -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">
                             Rôle:

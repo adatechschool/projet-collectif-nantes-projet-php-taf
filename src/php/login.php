@@ -16,6 +16,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["user_id"] = $user["id"];
         $_SESSION["nom"] = $user["nom"];
         $_SESSION["role"] = $user["role"];
+        $_SESSION["email"] = $user["email"];
+        $_SESSION["mot_de_passe"] =$password;
 
         header("Location: collection_list.php");
         exit;
