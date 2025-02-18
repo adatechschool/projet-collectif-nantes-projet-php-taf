@@ -52,9 +52,9 @@ error_reporting(E_ALL);
     </head> -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/projet-collectif-nantes-projet-php-taf/src/css/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/projet-collectif-nantes-projet-php-taf/src/css/style.css">
     <title>Liste des Collectes</title>
 </head>
 
@@ -68,7 +68,7 @@ error_reporting(E_ALL);
         <main class="flex-1 p-8 overflow-y-auto">
             <!-- Titre -->
             <header>
-                <h1 class="text-4xl font-bold text-blue-800 mb-6">Liste des Collectes de Déchets</h1>
+                <h1 class="text-4xl font-bold text-cyan-950 mb-6">Liste des Collectes de Déchets</h1>
             </header>
             <!-- Message de notification (ex: succès de suppression ou ajout) -->
             <?php if (isset($_GET['message'])): ?>
@@ -105,7 +105,7 @@ error_reporting(E_ALL);
             <!-- Tableau des collectes -->
             <div class="overflow-hidden rounded-lg shadow-lg bg-white">
                 <table class="w-full table-auto border-collapse">
-                    <thead class="bg-blue-800 text-white">
+                    <thead class="bg-cyan-950 text-white">
                         <tr>
                             <th scop="col" class="py-3 px-4 text-left">Date</th>
                             <th scop="col" class="py-3 px-4 text-left">Lieu</th>
@@ -129,9 +129,9 @@ error_reporting(E_ALL);
                                 <?php if($_SESSION["role"] !== "admin"): ?>
                                     <?php else: ?>
                                 <td class="py-3 px-4 flex space-x-2">
-                                    <a href="collection_edit.php?id=<?= $collecte['id'] ?>" class="bg-cyan-200 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" aria-label="Modifier la collecte <?= htmlspecialchars($collecte['benevoles']) ?>" role="button"
+                                    <a href="collection_edit.php?id=<?= $collecte['id'] ?>" class="bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" aria-label="Modifier la collecte <?= htmlspecialchars($collecte['benevoles']) ?>" role="button"
                                         title="Modifier la collecte <?= htmlspecialchars($collecte['benevoles']) ?>">
-                                        ✏️ Modifier
+                                        Modifier
                                     </a>
 
                                     <a href="collection_delete.php?id=<?= $collecte['id'] ?>"
@@ -139,7 +139,7 @@ error_reporting(E_ALL);
                                         role="button"
                                         title="supprimer une collecte"
                                         onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette collecte ?');">
-                                        🗑️ Supprimer
+                                        Supprimer
                                     </a>
                                 </td>
                                 <?php endif ?>
