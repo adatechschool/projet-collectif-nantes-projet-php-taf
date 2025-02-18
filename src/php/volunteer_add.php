@@ -1,4 +1,10 @@
 <?php
+session_start();
+if(!isset($_SESSION["user_id"])){
+    header('Location: login.php');
+    exit();
+}
+
 require "config.php";
 
 ini_set('display_errors', 1);
@@ -13,9 +19,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = $_POST['mot_de_passe'];
     $role = $_POST['role'];
 
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+
     try {
         $statement = $pdo->prepare("INSERT INTO benevoles(nom, email, mot_de_passe, role) VALUES (?, ?, ?, ?)");
-        if (!$statement->execute([$name, $email, $password, $role])) {
+        if (!$statement->execute([$name, $email, $hash, $role])) {
             die("Erreur lors de l'insertion dans la base de données.");
         }
 

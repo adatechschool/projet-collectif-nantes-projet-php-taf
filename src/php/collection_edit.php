@@ -1,4 +1,10 @@
 <?php
+session_start();
+if(!isset($_SESSION["user_id"])){
+    header('Location: login.php');
+    exit();
+}
+
 require 'config.php';
 
 ini_set('display_errors', 1);
