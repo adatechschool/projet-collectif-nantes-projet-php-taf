@@ -53,9 +53,19 @@ try {
 
     /* ------------------------------ */
     // Requête pour récupérer la dernière collecte (pour le tableau de bord)
-    $sqlLatest = "SELECT lieu, date_collecte FROM collectes ORDER BY date_collecte DESC LIMIT 1";
+    $sqlLatest = "SELECT lieu, date_collecte FROM collectes WHERE date_collecte <= CURDATE() ORDER BY date_collecte DESC LIMIT 1";
     $stmtLatest = $pdo->query($sqlLatest);
     $latestCollecte = $stmtLatest->fetch();
+
+    // Requête pour récupérer la prochaine collecte (la plus proche à venir après aujourd'hui)
+    $sqlNext = "SELECT lieu, date_collecte
+            FROM collectes
+            WHERE date_collecte > CURDATE()
+            ORDER BY date_collecte ASC
+            LIMIT 1";
+    $stmtNext = $pdo->query($sqlNext);
+    $nextCollecte = $stmtNext->fetch();
+
     /* ------------------------------ */
 
     /* -------------------------------- */
@@ -108,9 +118,30 @@ error_reporting(E_ALL);
 
             <!-- Message de notification (ex: succès de suppression ou ajout) -->
             <?php if (isset($_GET['message'])): ?>
-                <aside role="alert" class="bg-green-100 text-green-800 p-4 rounded-md mb-6">
-                    <?= htmlspecialchars($_GET['message']) ?>
-                </aside>
+                <div id="toast-success-delete" class="flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800" role="alert" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000;">
+                    <div class="inline-flex items-center justify-center shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
+                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                        </svg>
+                        <span class="sr-only">Icône de validation</span>
+                    </div>
+                    <div class="ms-3 text-sm font-normal"><?= htmlspecialchars($_GET['message']) ?></div>
+                    <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" onclick="document.getElementById('toast-success-delete').style.display='none'" aria-label="Fermer">
+                        <span class="sr-only">Fermer</span>
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                    </button>
+                </div>
+                <script>
+                    // Optionnel : pour fermer automatiquement le toast après 3 secondes
+                    setTimeout(function() {
+                        const toast = document.getElementById('toast-success-delete');
+                        if (toast) {
+                            toast.style.display = 'none';
+                        }
+                    }, 3000);
+                </script>
             <?php endif; ?>
 
             <!-- Cartes d'informations -->
@@ -118,23 +149,28 @@ error_reporting(E_ALL);
                 <!-- Nombre total de collectes -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     <h3 class="text-xl font-semibold text-gray-800 mb-3">Total des Collectes</h3>
-                    <p class="text-3xl font-bold text-blue-600"><?= count($collectes) ?></p>
+                    <p class="text-3xl font-bold text-blue-600"><?= $totalCollectes ?></p>
+                </div>
+                <!-- quantité total déchet de la collecte -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Total des déchets collectés </h3>
+                    <p class="text-3xl font-bold text-blue-600"><?= $quantite['quantite_total_des_dechets_collectes'] ?> kg</p>
                 </div>
                 <!-- Dernière collecte -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     <h3 class="text-xl font-semibold text-gray-800 mb-3">Dernière Collecte</h3>
-                    <p class="text-lg text-gray-600"><?= htmlspecialchars($collectes[0]['lieu']) ?></p>
-                    <p class="text-lg text-gray-600"><?= date('d/m/Y', strtotime($collectes[0]['date_collecte'])) ?></p>
+                    <p class="text-lg text-gray-600"><?= htmlspecialchars($latestCollecte['lieu']) ?></p>
+                    <p class="text-lg text-gray-600"><?= date('d/m/Y', strtotime($latestCollecte['date_collecte'])) ?></p>
                 </div>
-                <!-- quantité total déchet de la collecte -->
+                <!-- Prochaine collecte (à venir) -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Total des déchets collecté </h3>
-                    <p class="text-3xl font-bold text-blue-600"><?= $quantite['quantite_total_des_dechets_collectes'] ?> kg</p>
-                </div>
-                <!-- Bénévole Responsable -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Bénévole Admin</h3>
-                    <p class="text-lg text-gray-600"><?= $adminNom ?></p>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Prochaine Collecte</h3>
+                    <?php if ($nextCollecte): ?>
+                        <p class="text-lg text-gray-600"><?= htmlspecialchars($nextCollecte['lieu']) ?></p>
+                        <p class="text-lg text-gray-600"><?= date('d/m/Y', strtotime($nextCollecte['date_collecte'])) ?></p>
+                    <?php else: ?>
+                        <p class="text-lg text-gray-600">Aucune collecte à venir</p>
+                    <?php endif; ?>
                 </div>
             </section>
             <!-- Tableau des collectes -->
@@ -170,7 +206,7 @@ error_reporting(E_ALL);
                                         </a>
 
                                         <a href="collection_delete.php?id=<?= $collecte['id'] ?>"
-                                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200" aria-label="supprimer une collecte"
+                                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200" aria-label="supprimer la collecte"
                                             role="button"
                                             title="supprimer une collecte"
                                             onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette collecte ?');">
