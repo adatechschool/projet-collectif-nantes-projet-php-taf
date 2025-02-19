@@ -1,9 +1,18 @@
 <?php
 session_start();
-if(!isset($_SESSION["user_id"])){
+
+/* ------------------------------------- */
+// On vérifie que l'utilisateur·trice est connecté·e et qu'il·elle est un·e admin
+if (!isset($_SESSION["user_id"])) {
     header('Location: login.php');
     exit();
 }
+
+if ($_SESSION["role"] !== "admin") {
+    header("Location: collection_list.php");
+    exit();
+}
+/* ========================================== */
 
 require 'config.php';
 
@@ -64,11 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="fr">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/projet-collectif-nantes-projet-php-taf/src/css/style.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <?php require 'headElement.php'; ?>
     <title>Ajouter une collecte</title>
 </head>
 

@@ -12,14 +12,15 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 try {
-    $limit = 10;
+    // définit la pagination
+    $limit = 3;
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     $offset = ($page - 1) * $limit;
 
     // récupération de la liste des bénévoles
     $statement = $pdo->prepare("SELECT benevoles.id, benevoles.nom, benevoles.email, benevoles.role, COALESCE(GROUP_CONCAT(CONCAT(collectes.lieu, ' (', collectes.date_collecte, ')') SEPARATOR ', '), 'Aucune participation pour le moment') AS 'participations' FROM benevoles LEFT JOIN benevoles_collectes ON benevoles.id = benevoles_collectes.id_benevole LEFT JOIN collectes ON collectes.id = benevoles_collectes.id_collecte GROUP BY benevoles.id ORDER BY benevoles.nom ASC LIMIT :limit OFFSET :offset"); // écriture de la requête
 
-    // Sécurisation des variables dans la requête
+    // Sécurisation des variables dans la requête, evite les injections SQL
     $statement->bindParam(':limit', $limit, PDO::PARAM_INT);
     $statement->bindParam(':offset', $offset, PDO::PARAM_INT);
     $statement->execute();
@@ -101,6 +102,7 @@ try {
             </div>
             <div class="flex justify-center items-center space-x-4 mt-4">
                 <!-- Bouton Précédent -->
+                 <!-- la fonction max permet de s'assurer que les pazges ne partent pas en négatif, lorsque l'ont est est sur la page 1, onchange l'aspect du bouton et on annule son réactivité -->
                 <a href="?page=<?= max(1, $page - 1) ?>"
                     class="min-w-[120px] text-center bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition
                     <?= ($page <= 1) ? 'pointer-events-none opacity-50' : '' ?>">
@@ -110,6 +112,7 @@ try {
                 <span class="text-gray-700 font-semibold">Page <?= $page ?> sur <?= $totalPages ?></span>
 
                 <!-- Bouton Suivant -->
+                 <!-- même principe mais dans le sens inverse -->
                 <a href="?page=<?= min($totalPages, $page + 1) ?>"
                     class="min-w-[120px] text-center bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition
                     <?= ($page >= $totalPages) ? 'pointer-events-none opacity-50' : '' ?>">
