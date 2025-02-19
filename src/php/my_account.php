@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $error = "Le mot de passe actuel est incorrect.";
         }
     }
-// permet de modifier les infos du compte
+    // permet de modifier les infos du compte
     $stmtUpdate = $pdo->prepare("UPDATE benevoles SET nom = COALESCE(?, nom), email = COALESCE(?, email) 
      WHERE id = ?");
     $stmtUpdate->execute([$nom, $email, $_SESSION["user_id"]]);
@@ -45,10 +45,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <!DOCTYPE html>
 <html lang="fr">
 
-<?php
-$pageTitle = "Paramètres";
-require 'headElement.php';
-?>
+<head>
+    <?php require 'headElement.php'; ?>
+    <title>Mon compte</title>
+</head>
 
 <body class="bg-gray-100 text-gray-900">
     <div class="flex h-screen">
