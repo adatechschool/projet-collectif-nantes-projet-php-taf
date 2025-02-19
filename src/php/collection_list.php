@@ -1,21 +1,6 @@
 <?php
 session_start();
 
-if (isset($_GET['message'])) {
-    $toastMessage = $_GET['message'];
-    // Redirige vers la même page sans le paramètre "message"
-    header("Location: " . strtok($_SERVER["REQUEST_URI"], '?'));
-    // Stocke temporairement le message dans la session pour pouvoir l'afficher après la redirection
-    $_SESSION['toastMessage'] = $toastMessage;
-    exit();
-}
-
-$toastMessage = '';
-if (isset($_SESSION['toastMessage'])) {
-    $toastMessage = $_SESSION['toastMessage'];
-    unset($_SESSION['toastMessage']); // Détruit le message après affichage
-}
-
 /* -------------------------------- */
 // On vérifie que l'utilisateur est connecté sinon on redirige vers la page de connexion
 if (!isset($_SESSION["user_id"])) {
