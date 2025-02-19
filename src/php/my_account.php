@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $user = $stmt->fetch();
 
         // Vérifier si le mot de passe actuel est correct 
-        // dans le if du dessous $user est le memme que celui que l'on récupère dans le if du dessus 
+        // dans le if du dessous $user est le même que celui que l'on récupère dans le if du dessus
         if ($user && password_verify($currentPassword, $user['mot_de_passe'])) {
             if ($newPassword === $confirmPassword) {
                 // Hacher le nouveau mot de passe et le mettre à jour
@@ -36,9 +36,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
     // permet de modifier les infos du compte
-    $stmtUpdate = $pdo->prepare("UPDATE benevoles SET nom = COALESCE(?, nom), email = COALESCE(?, email) 
+    $stmtUpdate = $pdo->prepare("UPDATE benevoles SET nom = COALESCE(?, nom), email = COALESCE(?, email)
      WHERE id = ?");
     $stmtUpdate->execute([$nom, $email, $_SESSION["user_id"]]);
+
+    $_SESSION["nom"] = $nom;
+    $_SESSION["email"] = $email;
 }
 ?>
 
@@ -70,13 +73,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <form id="settings-form" method="POST" class="space-y-6">
                 <div>
                     <label for="nom" class="block text-sm font-medium text-gray-700">nom</label>
-                    <input type="nom" name="nom" id="nom" value="<?= htmlspecialchars($_SESSION['nom']) ?>"
+                    <input type="nom" name="nom" id="nom" value="<?= !isset($nom) ? htmlspecialchars($_SESSION['nom']) : $nom ?>"
                         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <!-- Champ Email -->
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" name="email" id="email" value="<?= htmlspecialchars($_SESSION['email']) ?>"
+                    <input type="email" name="email" id="email" value="<?= !isset($nom) ? htmlspecialchars($_SESSION['email']) : $email ?>"
                         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                 </div>
 

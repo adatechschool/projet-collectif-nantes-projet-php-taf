@@ -54,7 +54,8 @@ $collections = $statementCollections->fetchAll();
 $sqlQueryAttendances = "SELECT id_collecte FROM benevoles_collectes WHERE id_benevole = ?";
 $statementAttendances = $pdo->prepare($sqlQueryAttendances);
 $statementAttendances->execute([$id_benevole]);
-$currentAttendances = $statementAttendances->fetchAll();
+$currentAttendances =
+    array_column($statementAttendances->fetchAll(), 'id_collecte');
 /* ========================================== */
 
 /* ------------------------------------- */
