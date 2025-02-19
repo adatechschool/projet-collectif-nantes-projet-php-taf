@@ -1,4 +1,4 @@
-<?php 
+<?php
 // session_start();
 // ajouter une collecte
 // ajouter un bénévole
