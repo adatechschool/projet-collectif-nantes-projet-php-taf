@@ -84,7 +84,7 @@ try {
                                             Modifier
                                         </a>
                                         <a href="volunteer_delete.php?id=<?= $volunteersList[$index]["id"] ?>"
-                                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none         focus:ring-2 focus:ring-red-500 transition duration-200">
+                                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none         focus:ring-2 focus:ring-red-500 transition duration-200" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce bénévole ?');">
                                             Supprimer
                                         </a>
                                     </td>
