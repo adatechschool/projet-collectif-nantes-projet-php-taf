@@ -20,7 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->execute([$_SESSION["user_id"]]);
         $user = $stmt->fetch();
 
-        // Vérifier si le mot de passe actuel est correct
+        // Vérifier si le mot de passe actuel est correct 
+        // dans le if du dessous $user est le memme que celui que l'on récupère dans le if du dessus 
         if ($user && password_verify($currentPassword, $user['mot_de_passe'])) {
             if ($newPassword === $confirmPassword) {
                 // Hacher le nouveau mot de passe et le mettre à jour
@@ -34,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $error = "Le mot de passe actuel est incorrect.";
         }
     }
-
+// permet de modifier les infos du compte
     $stmtUpdate = $pdo->prepare("UPDATE benevoles SET nom = COALESCE(?, nom), email = COALESCE(?, email) 
      WHERE id = ?");
     $stmtUpdate->execute([$nom, $email, $_SESSION["user_id"]]);
@@ -107,7 +108,7 @@ require 'headElement.php';
                     <a href="collection_list.php" class="text-sm text-blue-600 hover:underline">Retour à la liste des
                         collectes</a>
                     <button type="submit"
-                        class="bg-cyan-200 hover:bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md">
+                        class="bg-cyan-950 hover:bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md">
                         Mettre à jour
                     </button>
                 </div>

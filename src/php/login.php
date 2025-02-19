@@ -2,6 +2,7 @@
 session_start(); // Démarrer la session
 require 'config.php';
 
+// récupératyion des champs tapé par l'utilisateur
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
@@ -12,6 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $user = $stmt->fetch();
 
     // Vérification du mot de passe (si hashé en BDD)
+    // si l'utilisateur est trouve, on garde les info de l'utilisateur dans une session
     if ($user && password_verify($password, $user['mot_de_passe'])) {
         $_SESSION["user_id"] = $user["id"];
         $_SESSION["nom"] = $user["nom"];
@@ -38,7 +40,7 @@ require 'headElement.php';
 <body class="bg-gray-100 text-gray-900">
     <div class="flex justify-center items-center min-h-screen">
         <div class="bg-white p-8 rounded-lg shadow-lg w-full sm:w-96">
-            <h1 class="text-3xl font-bold text-blue-900 mb-6 text-center">Connexion</h1>
+            <h1 class="text-3xl font-bold text-cyan-950 mb-6 text-center">Connexion</h1>
 
             <?php if (!empty($error)) : ?>
                 <div class="text-red-600 text-center mb-4">
@@ -59,7 +61,7 @@ require 'headElement.php';
 
                 <div class="flex justify-between items-center">
                     <a href="#" class="text-sm text-blue-600 hover:underline">Mot de passe oublié ?</a>
-                    <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded-lg shadow-md">
+                    <button type="submit" class="bg-cyan-950 hover:bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md">
                         Se connecter
                     </button>
                 </div>

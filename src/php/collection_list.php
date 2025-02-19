@@ -1,38 +1,81 @@
 <?php
 session_start();
-if(!isset($_SESSION["user_id"])){
+
+/* -------------------------------- */
+// On vérifie que l'utilisateur est connecté sinon on redirige vers la page de connexion
+if (!isset($_SESSION["user_id"])) {
     header('Location: login.php');
     exit();
 }
+/* ==================================== */
 
 require 'config.php';
 
 try {
-    $stmt = $pdo->query("SELECT bc.id_collecte as id, c.date_collecte, c.lieu,
-                    GROUP_CONCAT(DISTINCT v.nom ORDER BY v.nom SEPARATOR ', ') AS benevoles,
-                    GROUP_CONCAT(DISTINCT CONCAT(COALESCE(dc.type_dechet, 'type(s) non défini(s)'), ' (', ROUND(COALESCE(dc.quantite_kg, 0), 1), 'kg)') ORDER BY dc.type_dechet SEPARATOR ', ') AS wasteDetails
-                FROM benevoles v
-                INNER JOIN benevoles_collectes bc ON v.id = bc.id_benevole
-                INNER JOIN collectes c ON c.id = bc.id_collecte
-                LEFT JOIN dechets_collectes dc ON c.id = dc.id_collecte
-                GROUP BY bc.id_collecte
-                ORDER BY c.date_collecte DESC");
+    /* --------------------------- */
+    $limit = 3;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $offset = ($page - 1) * $limit;
+    /* ==================================== */
 
+    /* -------------------------------- */
+    // On récupère les informations sur les collectes, les bénévoles ayant participé aux collectes et les types de déchets collectés et leurs quantités
+    // La fonction MySQL GROUP_CONCAT permet:
+    // 1. de regrouper les noms des bénévoles associés à une collecte dans une chaîne de caractères unique, en les séparant par une virgule
+    // 2. assembler les détails des déchets collectés (type et quantité) en une seule chaîne pour chaque collecte.
+    // La fonction CONCAT permet de réunir les types et quantités de déchets.
+    $sqlQuery = "SELECT benevoles_collectes.id_collecte as id, collectes.date_collecte, collectes.lieu,
+                    GROUP_CONCAT(DISTINCT benevoles.nom ORDER BY benevoles.nom SEPARATOR ', ') AS benevoles,
+                    GROUP_CONCAT(DISTINCT CONCAT(COALESCE(dechets_collectes.type_dechet, 'type(s) non défini(s)'), ' (', ROUND(COALESCE(dechets_collectes.quantite_kg, 0), 1), 'kg)') ORDER BY dechets_collectes.type_dechet SEPARATOR ', ') AS wasteDetails
+                FROM benevoles
+                INNER JOIN benevoles_collectes ON benevoles.id = benevoles_collectes.id_benevole
+                INNER JOIN collectes ON collectes.id = benevoles_collectes.id_collecte
+                LEFT JOIN dechets_collectes ON collectes.id = dechets_collectes.id_collecte
+                GROUP BY benevoles_collectes.id_collecte
+                ORDER BY collectes.date_collecte DESC LIMIT :limit OFFSET :offset";
+    $stmt = $pdo->prepare($sqlQuery);
+    $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $collectes = $stmt->fetchAll();
+    /* ==================================== */
 
-    $stmt2 = $pdo->query("
-        SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1) 
+    /* ------------------------------ */
+    // Requête pour récupérer le nombre total de collectes (pour la pagination et le tableau de bord)
+    $sqlCount = "SELECT COUNT(DISTINCT benevoles_collectes.id_collecte) AS total
+                 FROM benevoles
+                 INNER JOIN benevoles_collectes ON benevoles.id = benevoles_collectes.id_benevole
+                 INNER JOIN collectes ON collectes.id = benevoles_collectes.id_collecte";
+    $totalStmt = $pdo->query($sqlCount);
+    $totalCollectes = $totalStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    $totalPages = ceil($totalCollectes / $limit);
+    /* ------------------------------ */
+
+    /* ------------------------------ */
+    // Requête pour récupérer la dernière collecte (pour le tableau de bord)
+    $sqlLatest = "SELECT lieu, date_collecte FROM collectes ORDER BY date_collecte DESC LIMIT 1";
+    $stmtLatest = $pdo->query($sqlLatest);
+    $latestCollecte = $stmtLatest->fetch();
+    /* ------------------------------ */
+
+    /* -------------------------------- */
+    // On récupère le total des déchets collectés pour l'ensemble des collectes réalisées
+    $sqlQuery2 = "SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1)
         AS quantite_total_des_dechets_collectes
         FROM collectes
-        LEFT JOIN dechets_collectes ON collectes.id=dechets_collectes.id_collecte
-    ");
+        LEFT JOIN dechets_collectes ON collectes.id=dechets_collectes.id_collecte";
+    $stmt2 = $pdo->query($sqlQuery2);
+    $quantite = $stmt2->fetch();
+    /* ==================================== */
 
-    $quantite = $stmt2->fetch(PDO::FETCH_ASSOC);
-
-    $query = $pdo->prepare("SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1");
+    /* -------------------------------- */
+    // On récupère le nom du premier bénévole admin
+    $sqlQuery3 = "SELECT nom FROM benevoles WHERE role = 'admin' LIMIT 1";
+    $query = $pdo->prepare($sqlQuery3);
     $query->execute();
-    $admin = $query->fetch(PDO::FETCH_ASSOC);
+    $admin = $query->fetch();
     $adminNom = $admin ? htmlspecialchars($admin['nom']) : 'Aucun administrateur trouvé';
+    /* ==================================== */
 } catch (PDOException $e) {
     echo "Erreur de base de données : " . $e->getMessage();
     exit;
@@ -50,26 +93,19 @@ error_reporting(E_ALL);
     <!-- <head>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Lora:wght@400;700&family=Montserrat:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Poppins:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;700&family=Nunito:wght@300;400;700&family=Merriweather:wght@300;400;700&family=Oswald:wght@300;400;700&display=swap" rel="stylesheet">
     </head> -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/projet-collectif-nantes-projet-php-taf/src/css/style.css">
+    <?php require 'headElement.php'; ?>
     <title>Liste des Collectes</title>
 </head>
 
 <body class="bg-gray-100 text-gray-900">
     <div class="flex h-screen">
-        <!-- Barre de navigation -->
-
         <?php require 'navbar.php'; ?>
 
-        <!-- Contenu principal -->
         <main class="flex-1 p-8 overflow-y-auto">
-            <!-- Titre -->
             <header>
                 <h1 class="text-4xl font-bold text-cyan-950 mb-6">Liste des Collectes de Déchets</h1>
             </header>
+
             <!-- Message de notification (ex: succès de suppression ou ajout) -->
             <?php if (isset($_GET['message'])): ?>
                 <aside role="alert" class="bg-green-100 text-green-800 p-4 rounded-md mb-6">
@@ -78,7 +114,6 @@ error_reporting(E_ALL);
             <?php endif; ?>
 
             <!-- Cartes d'informations -->
-
             <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Nombre total de collectes -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
@@ -111,9 +146,9 @@ error_reporting(E_ALL);
                             <th scop="col" class="py-3 px-4 text-left">Lieu</th>
                             <th scop="col" class="py-3 px-4 text-left">Bénévoles</th>
                             <th scop="col" class="py-3 px-4 text-left">Collectes</th>
-                            <?php if($_SESSION["role"] !== "admin"): ?>
-                                <?php else: ?>
-                            <th scop="col" class="py-3 px-4 text-left">Actions</th>
+                            <?php if ($_SESSION["role"] !== "admin"): ?>
+                            <?php else: ?>
+                                <th scop="col" class="py-3 px-4 text-left">Actions</th>
                             <?php endif ?>
                         </tr>
                     </thead>
@@ -126,27 +161,44 @@ error_reporting(E_ALL);
                                     <?= $collecte['benevoles'] ? htmlspecialchars($collecte['benevoles']) : 'Aucun bénévole' ?>
                                 </td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($collecte['wasteDetails']) ?></td>
-                                <?php if($_SESSION["role"] !== "admin"): ?>
-                                    <?php else: ?>
-                                <td class="py-3 px-4 flex space-x-2">
-                                    <a href="collection_edit.php?id=<?= $collecte['id'] ?>" class="bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" aria-label="Modifier la collecte <?= htmlspecialchars($collecte['benevoles']) ?>" role="button"
-                                        title="Modifier la collecte <?= htmlspecialchars($collecte['benevoles']) ?>">
-                                        Modifier
-                                    </a>
+                                <?php if ($_SESSION["role"] !== "admin"): ?>
+                                <?php else: ?>
+                                    <td class="py-3 px-4 flex space-x-2">
+                                        <a href="collection_edit.php?id=<?= $collecte['id'] ?>" class="bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" aria-label="Modifier la collecte <?= htmlspecialchars($collecte['benevoles']) ?>" role="button"
+                                            title="Modifier la collecte <?= htmlspecialchars($collecte['benevoles']) ?>">
+                                            Modifier
+                                        </a>
 
-                                    <a href="collection_delete.php?id=<?= $collecte['id'] ?>"
-                                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200" aria-label="supprimer une collecte"
-                                        role="button"
-                                        title="supprimer une collecte"
-                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette collecte ?');">
-                                        Supprimer
-                                    </a>
-                                </td>
+                                        <a href="collection_delete.php?id=<?= $collecte['id'] ?>"
+                                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200" aria-label="supprimer une collecte"
+                                            role="button"
+                                            title="supprimer une collecte"
+                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette collecte ?');">
+                                            Supprimer
+                                        </a>
+                                    </td>
                                 <?php endif ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Contrôles de pagination -->
+            <div class="flex justify-center items-center space-x-4 mt-4">
+                <!-- Bouton Précédent -->
+                <a href="?page=<?= max(1, $page - 1) ?>"
+                    class="min-w-[120px] text-center bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition <?= ($page <= 1) ? 'pointer-events-none opacity-50' : '' ?>">
+                    Précédent
+                </a>
+
+                <span class="text-gray-700 font-semibold">Page <?= $page ?> sur <?= $totalPages ?></span>
+
+                <!-- Bouton Suivant -->
+                <a href="?page=<?= min($totalPages, $page + 1) ?>"
+                    class="min-w-[120px] text-center bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition <?= ($page >= $totalPages) ? 'pointer-events-none opacity-50' : '' ?>">
+                    Suivant
+                </a>
             </div>
         </main>
     </div>
