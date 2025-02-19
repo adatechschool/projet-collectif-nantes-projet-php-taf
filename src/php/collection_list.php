@@ -8,6 +8,11 @@ if(!isset($_SESSION["user_id"])){
 require 'config.php';
 
 try {
+
+    $limit = 3;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $offset = ($page - 1) * $limit;
+
     $stmt = $pdo->query("SELECT bc.id_collecte as id, c.date_collecte, c.lieu,
                     GROUP_CONCAT(DISTINCT v.nom ORDER BY v.nom SEPARATOR ', ') AS benevoles,
                     GROUP_CONCAT(DISTINCT CONCAT(COALESCE(dc.type_dechet, 'type(s) non défini(s)'), ' (', ROUND(COALESCE(dc.quantite_kg, 0), 1), 'kg)') ORDER BY dc.type_dechet SEPARATOR ', ') AS wasteDetails
@@ -16,9 +21,15 @@ try {
                 INNER JOIN collectes c ON c.id = bc.id_collecte
                 LEFT JOIN dechets_collectes dc ON c.id = dc.id_collecte
                 GROUP BY bc.id_collecte
-                ORDER BY c.date_collecte DESC");
+                ORDER BY c.date_collecte DESC
+                LIMIT :limit OFFSET :offset");
 
     $collectes = $stmt->fetchAll();
+
+    $totalStmt = $pdo->query("SELECT COUNT(*) AS total FROM collectes");
+    $totalCollectes = $totalStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    $totalPages = ceil($totalCollectes / $limit);
+
 
     $stmt2 = $pdo->query("
         SELECT ROUND(SUM(COALESCE(dechets_collectes.quantite_kg,0)),1) 
@@ -33,6 +44,8 @@ try {
     $query->execute();
     $admin = $query->fetch(PDO::FETCH_ASSOC);
     $adminNom = $admin ? htmlspecialchars($admin['nom']) : 'Aucun administrateur trouvé';
+
+    
 } catch (PDOException $e) {
     echo "Erreur de base de données : " . $e->getMessage();
     exit;
