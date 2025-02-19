@@ -129,11 +129,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <span class="block text-sm font-medium text-gray-700 mb-2">Déchets collectés :</span>
                         <div id="waste-container">
                             <div class="waste-item flex space-x-4 mb-2">
-                                <select name="type_dechet[]" required class="w-full p-2 border border-gray-300 rounded-lg">
+                                <select name="type_dechet[]" class="w-full p-2 border border-gray-300 rounded-lg">
                                     <?= $options ?>
                                 </select>
-                                <input type="number" step="any" name="quantite_kg[]" placeholder="Quantité (kg)" class="w-full p-2 border border-gray-300 rounded-lg" required>
-                                <button type="button" class="bg-cyan-950 remove-waste bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
+                                <input type="number" step="0.1" name="quantite_kg[]" placeholder="Quantité (kg)" class="w-full p-2 border border-gray-300 rounded-lg">
+                                <button type="button" class="bg-cyan-950 remove-waste hover:bg-red-600 text-white px-2 py-1 rounded">
                                     Supprimer
                                 </button>
                             </div>
@@ -158,25 +158,57 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script>
         const wasteRowTemplate = `
             <div class="waste-item flex space-x-4 mb-2">
-                <select name="type_dechet[]" required class="w-full p-2 border border-gray-300 rounded-lg">
+                <select name="type_dechet[]" class="w-full p-2 border border-gray-300 rounded-lg">
                     <?= $options ?>
                 </select>
-                <input type="number" step="any" name="quantite_kg[]" placeholder="Quantité (kg)" class="w-full p-2 border border-gray-300 rounded-lg" required>
-                <button type="button" class="remove-waste bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
+                <input type="number" step="0.1" name="quantite_kg[]" placeholder="Quantité (kg)" class="w-full p-2 border border-gray-300 rounded-lg">
+                <button type="button" class="bg-cyan-950 remove-waste hover:bg-red-600 text-white px-2 py-1 rounded">
                     Supprimer
                 </button>
             </div>
         `;
 
+        // Function to update select options based on already chosen values
+        function updateWasteSelectOptions() {
+            const selects = document.querySelectorAll("select[name='type_dechet[]']");
+            // Gather all selected values
+            let selectedValues = Array.from(selects)
+                .map(select => select.value)
+                .filter(value => value !== ""); // ignore empty values
+
+            // For each select, iterate over its options
+            selects.forEach(select => {
+                // For each option, disable it if it has been selected in another select
+                select.querySelectorAll("option").forEach(option => {
+                    // If the option's value is selected in any select and it's not the current select's value
+                    if (selectedValues.includes(option.value) && option.value !== select.value) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                });
+            });
+        }
+
+        // Add event listener for when a waste type is changed
+        document.getElementById('waste-container').addEventListener('change', function(e) {
+            if (e.target && e.target.matches("select[name='type_dechet[]']")) {
+                updateWasteSelectOptions();
+            }
+        });
+
+        // Listener for dynamically added waste rows to also update options when changed
         document.getElementById('add-waste').addEventListener('click', function() {
             const container = document.getElementById('waste-container');
             container.insertAdjacentHTML('beforeend', wasteRowTemplate);
+            updateWasteSelectOptions();
         });
 
-        // Handle removal of a waste row
+        // When a waste row is removed, update the options accordingly
         document.getElementById('waste-container').addEventListener('click', function(e) {
             if (e.target && e.target.matches('button.remove-waste')) {
                 e.target.parentNode.remove();
+                updateWasteSelectOptions();
             }
         });
     </script>

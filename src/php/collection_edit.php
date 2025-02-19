@@ -192,11 +192,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 }
                             ?>
                                 <div class="waste-item flex space-x-4 mb-2">
-                                    <select name="type_dechet[]" required class="w-full p-2 border border-gray-300 rounded-lg">
+                                    <select name="type_dechet[]" class="w-full p-2 border border-gray-300 rounded-lg">
                                         <?= $selectOptions ?>
                                     </select>
-                                    <input type="number" step="any" name="quantite_kg[]" placeholder="Quantité (kg)" value="<?= htmlspecialchars($item['quantite_kg']) ?>" required class="w-full p-2 border border-gray-300 rounded-lg">
-                                    <button type="button" class="bg-cyan-950 remove-waste bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
+                                    <input type="number" step="0.1" name="quantite_kg[]" placeholder="Quantité (kg)" value="<?= htmlspecialchars($item['quantite_kg']) ?>" class="w-full p-2 border border-gray-300 rounded-lg">
+                                    <button type="button" class="bg-cyan-950 remove-waste hover:bg-red-600 text-white px-2 py-1 rounded">
                                         Supprimer
                                     </button>
                                 </div>
@@ -223,30 +223,63 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Ce bout de code gère la création et la suppression dynamique des inputs types et quantités de déchets
         const wasteRowTemplate = `
         <div class="waste-item flex space-x-4 mb-2">
-        <select name="type_dechet[]" required class="w-full p-2 border border-gray-300 rounded-lg">
+        <select name="type_dechet[]" class="w-full p-2 border border-gray-300 rounded-lg">
         <option value="">Sélectionner un type</option>
         <?php foreach ($wasteTypes as $wasteType): ?>
                         <option value="<?= htmlspecialchars($wasteType) ?>"><?= htmlspecialchars($wasteType) ?></option>
                     <?php endforeach; ?>
                     </select>
-                    <input type="number" step="any" name="quantite_kg[]" placeholder="Quantité (kg)" required class="w-full p-2 border border-gray-300 rounded-lg">
-                <button type="button" class="remove-waste bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
+                    <input type="number" step="0.1" name="quantite_kg[]" placeholder="Quantité (kg)" class="w-full p-2 border border-gray-300 rounded-lg">
+                <button type="button" class="bg-cyan-950 remove-waste hover:bg-red-600 text-white px-2 py-1 rounded">
                     Supprimer
                 </button>
             </div>
             `;
 
+        /**
+         * Met à jour les listes déroulantes en désactivant les options déjà sélectionnées dans d'autres selects.
+         */
+        function updateWasteSelectOptions() {
+            const selects = document.querySelectorAll("select[name='type_dechet[]']");
+            const selectedValues = Array.from(selects)
+                .map(select => select.value)
+                .filter(value => value !== "");
+
+            selects.forEach(select => {
+                select.querySelectorAll("option").forEach(option => {
+                    if (selectedValues.includes(option.value) && option.value !== select.value) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                });
+            });
+        }
+
+        // Mettre à jour dès qu'un select change
+        document.getElementById('waste-container').addEventListener('change', function(e) {
+            if (e.target && e.target.matches("select[name='type_dechet[]']")) {
+                updateWasteSelectOptions();
+            }
+        });
+
+        // Ajout d'une nouvelle ligne
         document.getElementById('add-waste').addEventListener('click', function() {
             const container = document.getElementById('waste-container');
             container.insertAdjacentHTML('beforeend', wasteRowTemplate);
+            updateWasteSelectOptions();
         });
 
-        // Gérer la suppression d'une ligne de déchet
+        // Suppression d'une ligne et mise à jour des options
         document.getElementById('waste-container').addEventListener('click', function(e) {
             if (e.target && e.target.matches('button.remove-waste')) {
                 e.target.parentNode.remove();
+                updateWasteSelectOptions();
             }
         });
+
+        // Appel initial pour désactiver les options déjà sélectionnées au chargement de la page
+        updateWasteSelectOptions();
         /* ================================== */
     </script>
 </body>

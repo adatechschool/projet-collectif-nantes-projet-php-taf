@@ -40,11 +40,7 @@ try {
 <html lang="fr">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/projet-collectif-nantes-projet-php-taf/src/css/style.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <?php require 'headElement.php'; ?>
     <title>Liste des Bénévoles</title>
 </head>
 
@@ -102,7 +98,7 @@ try {
             </div>
             <div class="flex justify-center items-center space-x-4 mt-4">
                 <!-- Bouton Précédent -->
-                 <!-- la fonction max permet de s'assurer que les pazges ne partent pas en négatif, lorsque l'ont est est sur la page 1, onchange l'aspect du bouton et on annule son réactivité -->
+                <!-- la fonction max permet de s'assurer que les pazges ne partent pas en négatif, lorsque l'ont est est sur la page 1, onchange l'aspect du bouton et on annule son réactivité -->
                 <a href="?page=<?= max(1, $page - 1) ?>"
                     class="min-w-[120px] text-center bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition
                     <?= ($page <= 1) ? 'pointer-events-none opacity-50' : '' ?>">
@@ -112,7 +108,7 @@ try {
                 <span class="text-gray-700 font-semibold">Page <?= $page ?> sur <?= $totalPages ?></span>
 
                 <!-- Bouton Suivant -->
-                 <!-- même principe mais dans le sens inverse -->
+                <!-- même principe mais dans le sens inverse -->
                 <a href="?page=<?= min($totalPages, $page + 1) ?>"
                     class="min-w-[120px] text-center bg-cyan-950 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition
                     <?= ($page >= $totalPages) ? 'pointer-events-none opacity-50' : '' ?>">

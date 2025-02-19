@@ -74,11 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="fr">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/projet-collectif-nantes-projet-php-taf/src/css/style.css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <?php require 'headElement.php'; ?>
     <title>Ajouter un bénévole</title>
 </head>
 
@@ -100,7 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="mb-4">
                         <label for="nom" class="block text-sm font-medium text-gray-700">
                             Nom
-                            <input type="text" name="nom"
+                            <input type="text" id="nom" name="nom"
                                 class="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Nom du bénévole" required />
                         </label>
@@ -111,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="mb-4">
                         <label for="email" class="block text-sm font-medium text-gray-700">
                             Email
-                            <input type="email" name="email"
+                            <input type="email" id="email" name="email"
                                 class="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Email du bénévole" required />
                         </label>
@@ -122,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="mb-4">
                         <label for="mot_de_passe" class="block text-sm font-medium text-gray-700">
                             Mot de passe
-                            <input type="password" name="mot_de_passe"
+                            <input type="password" id="mot_de_passe" name="mot_de_passe"
                                 class="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Mot de passe" required />
                         </label>
@@ -133,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="mb-4">
                         <label for="role" class="block text-sm font-medium text-gray-700">
                             Rôle
-                            <select name="role"
+                            <select id="role" name="role"
                                 class="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                                 <option value="participant">Participant</option>
                                 <option value="admin">Admin</option>
@@ -144,12 +140,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <!-- ------------------ champ Participations ------------------ -->
                     <div class="mb-4">
-                        <label for="attendances[]" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="participations" class="block text-sm font-medium text-gray-700 mb-2">
                             Participations
                             <?php if (!empty($collections)): ?>
                                 <?php foreach ($collections as $collection): ?>
                                     <div class="flex items-center mb-2">
-                                        <input type="checkbox" name="attendances[]" value="<?= htmlspecialchars($collection['id']) ?>" id="collection_<?= htmlspecialchars($collection['id']) ?>" class="mr-2">
+                                        <input type="checkbox" id="participations" name="attendances[]" value="<?= htmlspecialchars($collection['id']) ?>" id="collection_<?= htmlspecialchars($collection['id']) ?>" class="mr-2">
                                         <label for="collection_<?= htmlspecialchars($collection['id']) ?>" class="text-gray-700">
                                             <?= htmlspecialchars($collection['collection_label']) ?>
                                         </label>

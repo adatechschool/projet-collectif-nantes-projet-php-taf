@@ -2,7 +2,7 @@
 session_start(); // Démarrer la session
 require 'config.php';
 
-// récupératyion des champs tapé par l'utilisateur
+// récupération des champs tapé par l'utilisateur
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["nom"] = $user["nom"];
         $_SESSION["role"] = $user["role"];
         $_SESSION["email"] = $user["email"];
-        $_SESSION["mot_de_passe"] =$password;
+        $_SESSION["mot_de_passe"] = $password;
 
         header("Location: collection_list.php");
         exit;
@@ -32,10 +32,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <!DOCTYPE html>
 <html lang="fr">
 
-<?php
-$pageTitle = "Connexion";
-require 'headElement.php';
-?>
+<head>
+    <?php require 'headElement.php'; ?>
+    <title>Connexion</title>
+</head>
 
 <body class="bg-gray-100 text-gray-900">
     <div class="flex justify-center items-center min-h-screen">
